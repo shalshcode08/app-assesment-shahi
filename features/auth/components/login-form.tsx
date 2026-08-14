@@ -29,6 +29,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { continueToExam } from "@/features/auth/actions/continue-to-exam";
 import {
   HUB_OPTIONS,
   STATE_OPTIONS,
@@ -69,12 +70,12 @@ export function LoginForm({
           </CardDescription>
         </CardHeader>
         <CardContent className="py-4">
-          <form>
+          <form action={continueToExam}>
             <FieldGroup>
               <Field>
                 <FieldLabel
                   htmlFor="full-name"
-                  className="gap-1 text-xs font-medium text-foreground/75"
+                  className="gap-1 text-xs font-semibold text-foreground/75"
                 >
                   Candidate Full Name
                   <RequiredMark />
@@ -99,7 +100,7 @@ export function LoginForm({
               <Field>
                 <FieldLabel
                   htmlFor="email"
-                  className="gap-1 text-xs font-medium text-foreground/75"
+                  className="gap-1 text-xs font-semibold text-foreground/75"
                 >
                   Trainer Email Address
                   <RequiredMark />
@@ -125,7 +126,7 @@ export function LoginForm({
                 <Field>
                   <FieldLabel
                     htmlFor="state"
-                    className="gap-1 text-xs font-medium text-foreground/75"
+                    className="gap-1 text-xs font-semibold text-foreground/75"
                   >
                     State / Region
                     <RequiredMark />
@@ -153,7 +154,7 @@ export function LoginForm({
                 <Field>
                   <FieldLabel
                     htmlFor="hub"
-                    className="gap-1 text-xs font-medium text-foreground/75"
+                    className="gap-1 text-xs font-semibold text-foreground/75"
                   >
                     Training Center / Hub
                     <RequiredMark />

@@ -14,3 +14,16 @@
 - Place domain-specific UI and supporting data under `features/<feature>`.
 - Reserve `components/ui/` for reusable shadcn primitives and add broader shared components only when reuse is established.
 - Avoid creating abstraction layers before they have a concrete responsibility.
+
+## 2026-08-14: Exam workspace foundation
+
+- Keep `/exam` as a thin route and place assessment behavior, data, and types under `features/exam`.
+- Use a Server Action for the temporary login-to-exam transition so candidate details are not placed in the URL.
+- Keep candidate context and assessment questions as frontend fixture data until the backend owns login sessions, exam content, and attempts.
+- Use a focused assessment layout with one primary question surface, compact navigation, and restrained status indicators.
+
+## 2026-08-14: Selected exam layout
+
+- Use the certification-style composition at `/exam`, with the question content as the primary workspace and a persistent status palette on the right.
+- Keep exam state, controls, timer, question options, and navigation as focused feature components.
+- Remove the temporary comparison routes after selecting the final composition.

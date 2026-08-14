@@ -1,0 +1,8 @@
+"use server";
+
+import { redirect } from "next/navigation";
+
+export async function continueToExam(formData: FormData) {
+  void formData;
+  redirect("/exam");
+}

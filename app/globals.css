@@ -128,3 +128,48 @@
     @apply font-sans;
   }
 }
+
+@keyframes timer-digit-enter {
+  from {
+    opacity: 0;
+    transform: translateY(35%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes timer-digit-exit {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-35%);
+  }
+}
+
+.timer-digit-enter,
+.timer-digit-exit {
+  will-change: opacity, transform;
+  animation-duration: 220ms;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  animation-fill-mode: both;
+}
+
+.timer-digit-enter {
+  animation-name: timer-digit-enter;
+}
+
+.timer-digit-exit {
+  animation-name: timer-digit-exit;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .timer-digit-enter,
+  .timer-digit-exit {
+    animation-duration: 1ms;
+  }
+}
