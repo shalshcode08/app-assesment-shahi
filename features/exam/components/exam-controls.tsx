@@ -43,26 +43,34 @@ export function ExamControls({
         onClick={onPrevious}
         disabled={currentQuestionIndex === 0}
         aria-label="Previous question"
-        className="size-10 rounded-full"
+        className="size-11 rounded-full lg:size-10"
       >
         <ChevronLeftIcon aria-hidden="true" />
       </Button>
 
-      <div className="col-span-3 row-start-2 flex flex-wrap items-center justify-center gap-2 sm:col-span-1 sm:col-start-2 sm:row-start-1">
+      <div className="col-span-3 row-start-2 grid grid-cols-2 gap-2 lg:col-span-1 lg:col-start-2 lg:row-start-1 lg:flex lg:flex-wrap lg:items-center lg:justify-center">
         <Button
           type="button"
           variant="outline"
           size="lg"
           onClick={onMarkForReview}
-          className={cn("px-4", isFlagged && "bg-muted text-foreground")}
+          className={cn(
+            "h-11 w-full min-w-0 px-2 lg:h-9 lg:w-auto lg:px-4",
+            isFlagged && "bg-muted text-foreground",
+          )}
         >
           <FlagIcon aria-hidden="true" />
-          {isFlagged ? "Marked for Review & Next" : "Mark for Review"}
+          <span className="lg:hidden">
+            {isFlagged ? "Marked & Next" : "Review & Next"}
+          </span>
+          <span className="hidden lg:inline">
+            {isFlagged ? "Marked for Review & Next" : "Mark for Review"}
+          </span>
         </Button>
         <Button
           type="button"
           size="lg"
-          className="min-w-32 px-4"
+          className="h-11 w-full min-w-0 px-2 lg:h-9 lg:w-auto lg:min-w-32 lg:px-4"
           onClick={onNext}
         >
           Save & Next
@@ -77,7 +85,7 @@ export function ExamControls({
         onClick={onQuestionNext}
         disabled={currentQuestionIndex === EXAM_QUESTIONS.length - 1}
         aria-label="Next question"
-        className="col-start-3 row-start-1 size-10 rounded-full"
+        className="col-start-3 row-start-1 size-11 rounded-full lg:size-10"
       >
         <ChevronRightIcon aria-hidden="true" />
       </Button>

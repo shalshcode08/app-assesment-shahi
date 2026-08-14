@@ -11,6 +11,7 @@ type SubmitAssessmentDialogProps = {
   answeredCount: number;
   notVisitedCount: number;
   reviewLaterCount: number;
+  triggerClassName?: string;
   unansweredCount: number;
 };
 
@@ -37,6 +38,7 @@ export function SubmitAssessmentDialog({
   answeredCount,
   notVisitedCount,
   reviewLaterCount,
+  triggerClassName,
   unansweredCount,
 }: SubmitAssessmentDialogProps) {
   const totalQuestionCount = EXAM_QUESTIONS.length;
@@ -53,6 +55,7 @@ export function SubmitAssessmentDialog({
         className={cn(
           buttonVariants({ size: "lg" }),
           "h-12 w-full rounded-xl font-semibold",
+          triggerClassName,
         )}
       >
         Submit Test
@@ -69,7 +72,7 @@ export function SubmitAssessmentDialog({
               You have answered {answeredCount} of {totalQuestionCount} questions.
             </Dialog.Description>
 
-            <dl className="mt-6 grid grid-cols-2 gap-x-16 gap-y-8 py-5 px-4">
+            <dl className="mt-6 grid grid-cols-2 gap-x-6 gap-y-4 py-5 sm:gap-x-16 sm:gap-y-8 sm:px-4">
               {summaryItems.map((item) => (
                 <div key={item.key} className="flex items-center gap-2">
                   <span

@@ -6,6 +6,7 @@ import { CandidateSummary } from "@/features/exam/components/candidate-summary";
 import { ExamBrand } from "@/features/exam/components/exam-brand";
 import { ExamControls } from "@/features/exam/components/exam-controls";
 import { ExamTimer } from "@/features/exam/components/exam-timer";
+import { MobileExamToolbar } from "@/features/exam/components/mobile-exam-toolbar";
 import { QuestionNumberGrid } from "@/features/exam/components/question-number-grid";
 import { QuestionOptions } from "@/features/exam/components/question-options";
 import { QuestionStatusLegend } from "@/features/exam/components/question-status-legend";
@@ -38,18 +39,31 @@ export function ExamWorkspace() {
       </header>
 
       <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col bg-background lg:min-h-0">
-        <div className="flex shrink-0 flex-col items-start justify-between gap-3 border-b px-5 py-4 sm:min-h-16 sm:flex-row sm:items-center sm:gap-6 sm:px-8">
-          <div className="flex items-center gap-2.5">
+        <div className="flex shrink-0 items-start justify-between gap-4 border-b px-5 py-4 sm:min-h-16 sm:items-center sm:gap-6 sm:px-8">
+          <div className="flex min-w-0 items-center gap-2.5">
             <ClipboardCheckIcon
               aria-hidden="true"
-              className="size-5 shrink-0 text-foreground/55"
+              className="size-4 shrink-0 text-foreground/55 sm:size-5"
             />
-            <h1 className="text-base font-semibold text-foreground/90 sm:text-m">
+            <h1 className="text-sm font-semibold text-foreground/90 sm:text-base">
               {EXAM_TITLE}
             </h1>
           </div>
           <ExamTimer className="shrink-0" />
         </div>
+
+        <MobileExamToolbar
+          answeredCount={exam.answeredCount}
+          answeredQuestionIds={exam.answeredQuestionIds}
+          completion={completion}
+          currentQuestionIndex={exam.currentQuestionIndex}
+          flaggedQuestionIds={exam.flaggedQuestionIds}
+          notVisitedCount={notVisitedCount}
+          onQuestionSelect={exam.showQuestion}
+          reviewLaterCount={exam.flaggedQuestionIds.size}
+          unansweredCount={unansweredCount}
+          visitedQuestionIds={exam.visitedQuestionIds}
+        />
 
         <div className="grid flex-1 lg:min-h-0 lg:grid-cols-[minmax(0,1fr)_360px]">
           <section className="flex min-w-0 flex-col lg:min-h-0">
@@ -79,7 +93,7 @@ export function ExamWorkspace() {
             </div>
 
             <ExamControls
-              className="shrink-0 border-t bg-background px-5 py-4 sm:px-8"
+              className="sticky bottom-0 z-20 shrink-0 border-t bg-background px-5 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:px-8 lg:static lg:py-4"
               currentQuestionIndex={exam.currentQuestionIndex}
               isFlagged={exam.isCurrentQuestionFlagged}
               onMarkForReview={exam.markForReviewAndContinue}
@@ -93,7 +107,7 @@ export function ExamWorkspace() {
             />
           </section>
 
-          <aside className="order-first flex min-h-0 flex-col border-b bg-neutral-100 lg:order-last lg:overflow-hidden lg:border-r lg:border-b-0 lg:border-l">
+          <aside className="hidden min-h-0 flex-col bg-neutral-100 lg:flex lg:overflow-hidden lg:border-r lg:border-l">
             <div className="shrink-0 px-5 pt-5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-0.5">
