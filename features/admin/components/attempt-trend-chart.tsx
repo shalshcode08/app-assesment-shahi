@@ -141,8 +141,7 @@ export function AttemptTrendChart({
                   className="transition-opacity hover:opacity-80"
                 >
                   <title>
-                    {formatDay(day.date)}: {day.started} started,{" "}
-                    {day.submitted} submitted
+                    {`${formatDay(day.date)}: ${day.started} started, ${day.submitted} submitted`}
                   </title>
                 </rect>
               ) : (
@@ -154,7 +153,7 @@ export function AttemptTrendChart({
                   rx={1}
                   fill={VIZ.grid}
                 >
-                  <title>{formatDay(day.date)}: no attempts</title>
+                  <title>{`${formatDay(day.date)}: no attempts`}</title>
                 </rect>
               )}
               {isLabelled ? (

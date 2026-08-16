@@ -96,7 +96,7 @@ export function StateMetricsTable({ states }: { states: StateMetric[] }) {
 
       <div className="border-t border-border/60 p-5">
         <div className="min-w-0 overflow-x-auto rounded-xl border border-border/60">
-        <table className="w-full min-w-[820px] border-collapse text-left text-sm">
+        <table className="w-full min-w-[960px] border-collapse text-left text-sm">
           <thead>
             <tr className="border-b border-border/60 bg-muted/40">
               <HeadCell

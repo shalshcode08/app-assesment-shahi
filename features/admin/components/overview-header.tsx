@@ -30,7 +30,7 @@ export function OverviewHeader({
           <h1 className="mt-3 text-lg font-semibold tracking-[-0.01em] text-foreground">
             Trainer Analytics Dashboard
           </h1>
-          <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
+          <p className="text-xs text-muted-foreground">{subtitle}</p>
         </div>
         <div className="flex shrink-0 items-center gap-3">
           <span className="hidden text-xs text-muted-foreground sm:inline">

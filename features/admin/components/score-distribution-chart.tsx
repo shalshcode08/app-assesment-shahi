@@ -128,8 +128,9 @@ export function ScoreDistributionChart({
                   className="transition-opacity hover:opacity-80"
                 >
                   <title>
-                    {bucket.rangeStart}–{bucket.rangeEnd}%: {bucket.count}{" "}
-                    {bucket.count === 1 ? "candidate" : "candidates"}
+                    {`${bucket.rangeStart}–${bucket.rangeEnd}%: ${bucket.count} ${
+                      bucket.count === 1 ? "candidate" : "candidates"
+                    }`}
                   </title>
                 </rect>
               ) : null}

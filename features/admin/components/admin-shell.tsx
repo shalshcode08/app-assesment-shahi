@@ -10,6 +10,7 @@ import {
   MapPinIcon,
   MenuIcon,
   ShieldCheckIcon,
+  TrophyIcon,
   UsersIcon,
   XIcon,
 } from "lucide-react";
@@ -23,6 +24,7 @@ const NAV_ITEMS = [
   { href: "/admin/dashboard", icon: LayoutDashboardIcon, label: "Overview" },
   { href: "/admin/states", icon: MapPinIcon, label: "States & centres" },
   { href: "/admin/trainers", icon: UsersIcon, label: "Trainers" },
+  { href: "/admin/leaderboard", icon: TrophyIcon, label: "Leaderboard" },
   { href: null, icon: BookOpenIcon, label: "Question bank" },
 ] as const;
 
