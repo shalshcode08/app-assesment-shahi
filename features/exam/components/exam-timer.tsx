@@ -79,9 +79,11 @@ function TimerValue({
 
 export function ExamTimer({
   className,
+  isRunning = true,
   showLabel = true,
 }: {
   className?: string;
+  isRunning?: boolean;
   showLabel?: boolean;
 }) {
   const [secondsRemaining, setSecondsRemaining] = useState(
@@ -89,6 +91,10 @@ export function ExamTimer({
   );
 
   useEffect(() => {
+    if (!isRunning) {
+      return;
+    }
+
     const deadline = Date.now() + EXAM_DURATION_SECONDS * 1000;
     const updateTimer = () => {
       const remaining = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
@@ -102,7 +108,7 @@ export function ExamTimer({
     const timer = window.setInterval(updateTimer, 250);
 
     return () => window.clearInterval(timer);
-  }, []);
+  }, [isRunning]);
 
   const formattedTime = formatTime(secondsRemaining);
   const previousFormattedTime = formatTime(

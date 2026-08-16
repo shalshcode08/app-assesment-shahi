@@ -1,10 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import { ClipboardCheckIcon } from "lucide-react";
 
 import { CandidateSummary } from "@/features/exam/components/candidate-summary";
 import { ExamBrand } from "@/features/exam/components/exam-brand";
 import { ExamControls } from "@/features/exam/components/exam-controls";
+import { ExamInstructionsDialog } from "@/features/exam/components/exam-instructions-dialog";
 import { ExamTimer } from "@/features/exam/components/exam-timer";
 import { MobileExamToolbar } from "@/features/exam/components/mobile-exam-toolbar";
 import { QuestionNumberGrid } from "@/features/exam/components/question-number-grid";
@@ -19,6 +21,7 @@ import {
 import { useExamSession } from "@/features/exam/hooks/use-exam-session";
 
 export function ExamWorkspace() {
+  const [hasStarted, setHasStarted] = useState(false);
   const exam = useExamSession();
   const completion = Math.round(
     (exam.answeredCount / EXAM_QUESTIONS.length) * 100,
@@ -49,7 +52,7 @@ export function ExamWorkspace() {
               {EXAM_TITLE}
             </h1>
           </div>
-          <ExamTimer className="shrink-0" />
+          <ExamTimer className="shrink-0" isRunning={hasStarted} />
         </div>
 
         <MobileExamToolbar
@@ -171,6 +174,11 @@ export function ExamWorkspace() {
           </aside>
         </div>
       </main>
+
+      <ExamInstructionsDialog
+        open={!hasStarted}
+        onProceed={() => setHasStarted(true)}
+      />
     </div>
   );
 }
