@@ -1,8 +1,11 @@
-import { EXAM_QUESTIONS } from "@/features/exam/constants/exam-questions";
-import { EXAM_RESULT } from "@/features/exam/constants/exam-result";
+import type { ExamResultQuestion } from "@/features/exam/types";
 import { cn } from "@/lib/utils";
 
-export function ResultAnswerReview() {
+export function ResultAnswerReview({
+  questions,
+}: {
+  questions: ExamResultQuestion[];
+}) {
   return (
     <section aria-labelledby="answer-review-title" className="mt-8 sm:mt-10">
       <div className="mb-4">
@@ -15,11 +18,10 @@ export function ResultAnswerReview() {
       </div>
 
       <div className="grid gap-3 rounded-xl bg-background p-2 sm:p-3">
-        {EXAM_QUESTIONS.map((question, questionIndex) => {
-          const correctOptionId = EXAM_RESULT.correctOptionIds[question.id];
-          const selectedOptionId = EXAM_RESULT.selectedOptionIds[question.id];
-          const isAnswered = Boolean(selectedOptionId);
-          const isCorrect = selectedOptionId === correctOptionId;
+        {questions.map((question) => {
+          const isAnswered = Boolean(question.selectedOptionId);
+          const isCorrect =
+            question.selectedOptionId === question.correctOptionId;
           const questionStatus = isCorrect
             ? "Correct"
             : isAnswered
@@ -34,7 +36,7 @@ export function ResultAnswerReview() {
               <div className="flex flex-col items-start gap-3 sm:flex-row sm:justify-between sm:gap-4">
                 <h3 className="grid max-w-5xl min-w-0 grid-cols-[auto_minmax(0,1fr)] gap-x-2 text-base leading-6 font-medium text-foreground/90">
                   <span className="font-semibold text-foreground">
-                    Q{questionIndex + 1}.
+                    Q{question.position}.
                   </span>
                   <span>{question.prompt}</span>
                 </h3>
@@ -52,11 +54,13 @@ export function ResultAnswerReview() {
 
               <ul
                 className="mt-4 grid gap-2"
-                aria-label={`Question ${question.id} options`}
+                aria-label={`Question ${question.position} options`}
               >
                 {question.options.map((option, optionIndex) => {
-                  const isCorrectOption = option.id === correctOptionId;
-                  const isSelectedOption = option.id === selectedOptionId;
+                  const isCorrectOption =
+                    option.id === question.correctOptionId;
+                  const isSelectedOption =
+                    option.id === question.selectedOptionId;
                   const isSelectedIncorrect =
                     isSelectedOption && !isCorrectOption;
 
@@ -76,8 +80,7 @@ export function ResultAnswerReview() {
                         aria-hidden="true"
                         className={cn(
                           "grid size-8 shrink-0 place-items-center rounded-full bg-neutral-100 text-xs font-semibold text-foreground/60",
-                          isCorrectOption &&
-                            "bg-green-600 text-white",
+                          isCorrectOption && "bg-green-600 text-white",
                           isSelectedIncorrect && "bg-red-600 text-white",
                         )}
                       >

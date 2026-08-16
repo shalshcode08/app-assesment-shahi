@@ -8,20 +8,21 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { QuestionNumberGrid } from "@/features/exam/components/question-number-grid";
 import { QuestionStatusLegend } from "@/features/exam/components/question-status-legend";
 import { SubmitAssessmentDialog } from "@/features/exam/components/submit-assessment-dialog";
-import { EXAM_QUESTIONS } from "@/features/exam/constants/exam-questions";
+import type { ExamQuestion } from "@/features/exam/types";
 import { cn } from "@/lib/utils";
 
 type MobileExamToolbarProps = {
   answeredCount: number;
-  answeredQuestionIds: Set<number>;
+  answeredQuestionIds: Set<string>;
   completion: number;
   currentQuestionIndex: number;
-  flaggedQuestionIds: Set<number>;
+  flaggedQuestionIds: Set<string>;
   notVisitedCount: number;
   onQuestionSelect: (index: number) => void;
+  questions: ExamQuestion[];
   reviewLaterCount: number;
   unansweredCount: number;
-  visitedQuestionIds: Set<number>;
+  visitedQuestionIds: Set<string>;
 };
 
 export function MobileExamToolbar({
@@ -32,6 +33,7 @@ export function MobileExamToolbar({
   flaggedQuestionIds,
   notVisitedCount,
   onQuestionSelect,
+  questions,
   reviewLaterCount,
   unansweredCount,
   visitedQuestionIds,
@@ -47,7 +49,7 @@ export function MobileExamToolbar({
     <div className="sticky top-0 z-20 border-b bg-neutral-100 px-4 py-3 lg:hidden">
       <div className="flex items-center justify-between text-xs">
         <span className="font-medium text-foreground/80">
-          Question {currentQuestionIndex + 1} of {EXAM_QUESTIONS.length}
+          Question {currentQuestionIndex + 1} of {questions.length}
         </span>
         <span className="tabular-nums text-muted-foreground">
           {completion}% complete
@@ -56,7 +58,7 @@ export function MobileExamToolbar({
 
       <div
         aria-label="Assessment completion"
-        aria-valuemax={EXAM_QUESTIONS.length}
+        aria-valuemax={questions.length}
         aria-valuemin={0}
         aria-valuenow={answeredCount}
         className="mt-2 h-1.5 overflow-hidden rounded-full border border-neutral-300 bg-background"
@@ -93,7 +95,7 @@ export function MobileExamToolbar({
                       Questions
                     </Dialog.Title>
                     <Dialog.Description className="mt-1 text-xs text-muted-foreground">
-                      {answeredCount} of {EXAM_QUESTIONS.length} answered
+                      {answeredCount} of {questions.length} answered
                     </Dialog.Description>
                   </div>
                   <Dialog.Close
@@ -121,6 +123,7 @@ export function MobileExamToolbar({
                   currentQuestionIndex={currentQuestionIndex}
                   flaggedQuestionIds={flaggedQuestionIds}
                   onQuestionSelect={selectQuestion}
+                  questions={questions}
                   visitedQuestionIds={visitedQuestionIds}
                 />
               </Dialog.Popup>
@@ -132,6 +135,7 @@ export function MobileExamToolbar({
           answeredCount={answeredCount}
           notVisitedCount={notVisitedCount}
           reviewLaterCount={reviewLaterCount}
+          totalQuestionCount={questions.length}
           triggerClassName="h-11 rounded-lg"
           unansweredCount={unansweredCount}
         />

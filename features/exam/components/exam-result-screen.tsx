@@ -7,11 +7,7 @@ import {
 import { ExamBrand } from "@/features/exam/components/exam-brand";
 import { ResultAnswerReview } from "@/features/exam/components/result-answer-review";
 import { ResultCandidateOverview } from "@/features/exam/components/result-candidate-overview";
-import {
-  EXAM_QUESTIONS,
-  EXAM_TITLE,
-} from "@/features/exam/constants/exam-questions";
-import { EXAM_RESULT } from "@/features/exam/constants/exam-result";
+import type { GuestExamResult } from "@/features/exam/types";
 
 function formatDuration(totalSeconds: number) {
   const minutes = Math.floor(totalSeconds / 60);
@@ -20,40 +16,32 @@ function formatDuration(totalSeconds: number) {
   return `${minutes}m ${seconds.toString().padStart(2, "0")}s`;
 }
 
-export function ExamResultScreen() {
-  const correctAnswerCount = EXAM_QUESTIONS.reduce(
-    (count, question) =>
-      EXAM_RESULT.selectedOptionIds[question.id] ===
-      EXAM_RESULT.correctOptionIds[question.id]
-        ? count + 1
-        : count,
-    0,
+export function ExamResultScreen({ result }: { result: GuestExamResult }) {
+  const totalQuestionCount = result.questions.length;
+  const displayScorePercentage = Math.round(result.scorePercentage);
+  const configuredDurationMinutes = Math.ceil(
+    result.configuredDurationSeconds / 60,
   );
-  const scorePercentage = Math.round(
-    (correctAnswerCount / EXAM_QUESTIONS.length) * 100,
-  );
-  const isQualified = scorePercentage >= EXAM_RESULT.passingPercentage;
-
   const examDetails = [
     {
       label: "Exam duration",
-      value: formatDuration(EXAM_RESULT.durationSeconds),
-      supportingText: "30-minute assessment",
+      value: formatDuration(result.durationSeconds),
+      supportingText: `${configuredDurationMinutes}-minute assessment`,
       icon: Clock3Icon,
       cardClassName: "bg-slate-100 text-slate-900",
       iconClassName: "text-slate-600",
     },
     {
       label: "Correct answers",
-      value: `${correctAnswerCount} of ${EXAM_QUESTIONS.length}`,
-      supportingText: `${scorePercentage}% accuracy`,
+      value: `${result.correctCount} of ${totalQuestionCount}`,
+      supportingText: `${displayScorePercentage}% score`,
       icon: CircleCheckIcon,
       cardClassName: "bg-green-50 text-green-950",
       iconClassName: "text-green-700",
     },
     {
       label: "Tab switch warnings",
-      value: EXAM_RESULT.tabSwitchWarnings.toString(),
+      value: result.tabWarningCount.toString(),
       supportingText: "Recorded during this attempt",
       icon: TriangleAlertIcon,
       cardClassName: "bg-amber-50 text-amber-950",
@@ -74,15 +62,16 @@ export function ExamResultScreen() {
           <h1 className="text-xl font-semibold tracking-[-0.015em] sm:text-2xl">
             Assessment result
           </h1>
-          <p className="mt-1 text-sm text-muted-foreground">{EXAM_TITLE}</p>
+          <p className="mt-1 text-sm text-muted-foreground">{result.title}</p>
         </div>
 
         <ResultCandidateOverview
-          correctAnswerCount={correctAnswerCount}
-          isQualified={isQualified}
-          passingPercentage={EXAM_RESULT.passingPercentage}
-          scorePercentage={scorePercentage}
-          totalQuestionCount={EXAM_QUESTIONS.length}
+          candidate={result.candidate}
+          correctAnswerCount={result.correctCount}
+          incorrectAnswerCount={result.incorrectCount}
+          isQualified={result.qualified}
+          passingPercentage={result.passingPercentage}
+          scorePercentage={displayScorePercentage}
         />
 
         <section aria-labelledby="exam-details-title" className="mt-7 sm:mt-8">
@@ -121,7 +110,7 @@ export function ExamResultScreen() {
           </dl>
         </section>
 
-        <ResultAnswerReview />
+        <ResultAnswerReview questions={result.questions} />
       </main>
     </div>
   );

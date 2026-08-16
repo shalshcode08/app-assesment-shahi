@@ -1,12 +1,14 @@
 import { Building2Icon, MapPinIcon, UserRoundIcon } from "lucide-react";
 
-import { EXAM_CANDIDATE } from "@/features/exam/constants/exam-questions";
+import type { ExamCandidate } from "@/features/exam/types";
 import { cn } from "@/lib/utils";
 
 export function CandidateSummary({
+  candidate,
   className,
   showLocation = false,
 }: {
+  candidate: ExamCandidate;
   className?: string;
   showLocation?: boolean;
 }) {
@@ -14,21 +16,21 @@ export function CandidateSummary({
     <div className={cn("flex items-center gap-3", className)}>
       <div className="hidden text-right sm:block">
         <p className="text-xs font-semibold text-foreground/85">
-          {EXAM_CANDIDATE.name}
+          {candidate.name}
         </p>
         <p className="text-[11px] text-muted-foreground">
-          {EXAM_CANDIDATE.email}
+          {candidate.email}
         </p>
       </div>
       {showLocation ? (
         <div className="hidden items-center gap-4 border-l pl-4 xl:flex">
           <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
             <MapPinIcon aria-hidden="true" className="size-3.5" />
-            {EXAM_CANDIDATE.state}
+            {candidate.region}
           </span>
           <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
             <Building2Icon aria-hidden="true" className="size-3.5" />
-            {EXAM_CANDIDATE.hub}
+            {candidate.hub}
           </span>
         </div>
       ) : null}

@@ -1,15 +1,16 @@
 "use client";
 
-import { EXAM_QUESTIONS } from "@/features/exam/constants/exam-questions";
+import type { ExamQuestion } from "@/features/exam/types";
 import { cn } from "@/lib/utils";
 
 type QuestionNumberGridProps = {
-  answeredQuestionIds: Set<number>;
+  answeredQuestionIds: Set<string>;
   className?: string;
   currentQuestionIndex: number;
-  flaggedQuestionIds: Set<number>;
+  flaggedQuestionIds: Set<string>;
   onQuestionSelect: (index: number) => void;
-  visitedQuestionIds: Set<number>;
+  questions: ExamQuestion[];
+  visitedQuestionIds: Set<string>;
 };
 
 export function QuestionNumberGrid({
@@ -18,6 +19,7 @@ export function QuestionNumberGrid({
   currentQuestionIndex,
   flaggedQuestionIds,
   onQuestionSelect,
+  questions,
   visitedQuestionIds,
 }: QuestionNumberGridProps) {
   return (
@@ -25,7 +27,7 @@ export function QuestionNumberGrid({
       className={cn("grid grid-cols-5 gap-x-2 gap-y-4", className)}
       aria-label="Assessment questions"
     >
-      {EXAM_QUESTIONS.map((question, index) => {
+      {questions.map((question, index) => {
         const isCurrent = index === currentQuestionIndex;
         const isAnswered = answeredQuestionIds.has(question.id);
         const isFlagged = flaggedQuestionIds.has(question.id);
@@ -37,7 +39,7 @@ export function QuestionNumberGrid({
             type="button"
             onClick={() => onQuestionSelect(index)}
             aria-current={isCurrent ? "step" : undefined}
-            aria-label={`Go to question ${question.id}${
+            aria-label={`Go to question ${index + 1}${
               isAnswered ? ", answered" : ""
             }${isFlagged ? ", review later" : ""}${
               isVisited && !isAnswered ? ", unanswered" : ""
@@ -65,7 +67,7 @@ export function QuestionNumberGrid({
                 "border-neutral-300 bg-background text-muted-foreground hover:bg-neutral-50",
             )}
           >
-            {question.id}
+            {index + 1}
             {isCurrent && isFlagged ? (
               <span
                 aria-hidden="true"

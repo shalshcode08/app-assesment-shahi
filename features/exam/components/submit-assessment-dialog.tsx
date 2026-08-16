@@ -1,11 +1,12 @@
 "use client";
 
+import { useState, useTransition } from "react";
 import { Dialog } from "@base-ui/react/dialog";
-import { CircleAlertIcon } from "lucide-react";
+import { CircleAlertIcon, LoaderCircleIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-import { buttonVariants } from "@/components/ui/button";
-import { EXAM_QUESTIONS } from "@/features/exam/constants/exam-questions";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { submitGuestAttempt } from "@/features/exam/actions/update-guest-attempt";
 import { cn } from "@/lib/utils";
 
 type SubmitAssessmentDialogProps = {
@@ -13,6 +14,7 @@ type SubmitAssessmentDialogProps = {
   notVisitedCount: number;
   reviewLaterCount: number;
   triggerClassName?: string;
+  totalQuestionCount: number;
   unansweredCount: number;
 };
 
@@ -39,17 +41,33 @@ export function SubmitAssessmentDialog({
   answeredCount,
   notVisitedCount,
   reviewLaterCount,
+  totalQuestionCount,
   triggerClassName,
   unansweredCount,
 }: SubmitAssessmentDialogProps) {
   const router = useRouter();
-  const totalQuestionCount = EXAM_QUESTIONS.length;
+  const [submitError, setSubmitError] = useState<string>();
+  const [isSubmitting, startSubmitTransition] = useTransition();
   const counts = {
     answered: answeredCount,
     notVisited: notVisitedCount,
     reviewLater: reviewLaterCount,
     unanswered: unansweredCount,
   };
+
+  function handleSubmit() {
+    setSubmitError(undefined);
+    startSubmitTransition(async () => {
+      const result = await submitGuestAttempt();
+
+      if (!result.ok) {
+        setSubmitError(result.message);
+        return;
+      }
+
+      router.replace("/exam/result");
+    });
+  }
 
   return (
     <Dialog.Root>
@@ -104,6 +122,15 @@ export function SubmitAssessmentDialog({
               </p>
             </div>
 
+            {submitError ? (
+              <p
+                role="alert"
+                className="mt-3 text-center text-xs leading-5 text-destructive"
+              >
+                {submitError}
+              </p>
+            ) : null}
+
             <div className="mt-6 flex items-center gap-3">
               <Dialog.Close
                 className={cn(
@@ -113,15 +140,25 @@ export function SubmitAssessmentDialog({
               >
                 Resume
               </Dialog.Close>
-              <Dialog.Close
-                onClick={() => router.replace("/exam/result")}
-                className={cn(
-                  buttonVariants({ size: "lg" }),
-                  "w-1/2 px-5",
-                )}
+              <Button
+                type="button"
+                size="lg"
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+                className="w-1/2 px-5"
               >
-                Submit
-              </Dialog.Close>
+                {isSubmitting ? (
+                  <>
+                    <LoaderCircleIcon
+                      aria-hidden="true"
+                      className="animate-spin"
+                    />
+                    Submitting
+                  </>
+                ) : (
+                  "Submit"
+                )}
+              </Button>
             </div>
           </Dialog.Popup>
         </Dialog.Viewport>

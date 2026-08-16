@@ -7,7 +7,6 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { EXAM_QUESTIONS } from "@/features/exam/constants/exam-questions";
 import { cn } from "@/lib/utils";
 
 type ExamControlsProps = {
@@ -17,6 +16,7 @@ type ExamControlsProps = {
   onNext: () => void;
   onPrevious: () => void;
   onQuestionNext: () => void;
+  totalQuestionCount: number;
   className?: string;
 };
 
@@ -28,6 +28,7 @@ export function ExamControls({
   onNext,
   onPrevious,
   onQuestionNext,
+  totalQuestionCount,
 }: ExamControlsProps) {
   return (
     <div
@@ -83,7 +84,7 @@ export function ExamControls({
         variant="outline"
         size="icon-lg"
         onClick={onQuestionNext}
-        disabled={currentQuestionIndex === EXAM_QUESTIONS.length - 1}
+        disabled={currentQuestionIndex === totalQuestionCount - 1}
         aria-label="Next question"
         className="col-start-3 row-start-1 size-11 rounded-full lg:size-10"
       >

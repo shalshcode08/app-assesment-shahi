@@ -1,27 +1,40 @@
 "use client";
 
 import { Dialog } from "@base-ui/react/dialog";
+import { LoaderCircleIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import {
-  EXAM_QUESTIONS,
-  EXAM_TITLE,
-} from "@/features/exam/constants/exam-questions";
 
-const instructions = [
-  `The assessment contains ${EXAM_QUESTIONS.length} single-choice questions and has a 30-minute time limit.`,
-  "The timer begins when you proceed and continues until the assessment is submitted.",
-  "You can move between questions and mark any question for review before submitting.",
-  "Browser tab changes may be recorded. Submitted answers cannot be changed.",
-] as const;
+function formatDuration(durationSeconds: number) {
+  const totalMinutes = Math.ceil(durationSeconds / 60);
+
+  return `${totalMinutes}-minute`;
+}
 
 export function ExamInstructionsDialog({
   open,
+  errorMessage,
+  isPending,
   onProceed,
+  durationSeconds,
+  questionCount,
+  title,
 }: {
+  durationSeconds: number;
+  errorMessage?: string;
+  isPending: boolean;
   open: boolean;
   onProceed: () => void;
+  questionCount: number;
+  title: string;
 }) {
+  const instructions = [
+    `The assessment contains ${questionCount} single-choice questions and has a ${formatDuration(durationSeconds)} time limit.`,
+    "The timer begins when you proceed and continues until the assessment is submitted.",
+    "You can move between questions and mark any question for review before submitting.",
+    "Browser tab changes may be recorded. Submitted answers cannot be changed.",
+  ];
+
   return (
     <Dialog.Root open={open}>
       <Dialog.Portal>
@@ -32,7 +45,7 @@ export function ExamInstructionsDialog({
               Assessment instructions
             </Dialog.Title>
             <Dialog.Description className="mt-1.5 text-center text-sm text-muted-foreground">
-              {EXAM_TITLE}
+              {title}
             </Dialog.Description>
 
             <ol className="mt-6 grid gap-3.5 border-y py-5">
@@ -52,13 +65,30 @@ export function ExamInstructionsDialog({
               ))}
             </ol>
 
+            {errorMessage ? (
+              <p
+                role="alert"
+                className="mt-4 text-center text-xs leading-5 text-destructive"
+              >
+                {errorMessage}
+              </p>
+            ) : null}
+
             <Button
               type="button"
               size="lg"
               className="mt-6 h-11 w-full font-semibold"
               onClick={onProceed}
+              disabled={isPending}
             >
-              Proceed to Test
+              {isPending ? (
+                <>
+                  <LoaderCircleIcon aria-hidden="true" className="animate-spin" />
+                  Starting assessment
+                </>
+              ) : (
+                "Proceed to Test"
+              )}
             </Button>
           </Dialog.Popup>
         </Dialog.Viewport>

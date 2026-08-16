@@ -1,8 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState, useTransition } from "react";
 import { ClipboardCheckIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 
+import { beginGuestAttempt } from "@/features/exam/actions/begin-guest-attempt";
+import { submitGuestAttempt } from "@/features/exam/actions/update-guest-attempt";
 import { CandidateSummary } from "@/features/exam/components/candidate-summary";
 import { ExamBrand } from "@/features/exam/components/exam-brand";
 import { ExamControls } from "@/features/exam/components/exam-controls";
@@ -14,30 +17,77 @@ import { QuestionOptions } from "@/features/exam/components/question-options";
 import { QuestionStatusLegend } from "@/features/exam/components/question-status-legend";
 import { QuestionStatusSummary } from "@/features/exam/components/question-status-summary";
 import { SubmitAssessmentDialog } from "@/features/exam/components/submit-assessment-dialog";
-import {
-  EXAM_QUESTIONS,
-  EXAM_TITLE,
-} from "@/features/exam/constants/exam-questions";
 import { useExamSession } from "@/features/exam/hooks/use-exam-session";
+import { useAttemptMonitoring } from "@/features/exam/hooks/use-attempt-monitoring";
+import type { GuestExamSession } from "@/features/exam/types";
 
-export function ExamWorkspace() {
-  const [hasStarted, setHasStarted] = useState(false);
-  const exam = useExamSession();
+export function ExamWorkspace({ session }: { session: GuestExamSession }) {
+  const router = useRouter();
+  const [hasStarted, setHasStarted] = useState(
+    session.status === "in_progress",
+  );
+  const [timing, setTiming] = useState({
+    expiresAt: session.expiresAt,
+    serverNow: session.serverNow,
+  });
+  const [startError, setStartError] = useState<string>();
+  const [expirySubmitError, setExpirySubmitError] = useState<string>();
+  const [isStarting, startTransition] = useTransition();
+  const [, startExpirySubmitTransition] = useTransition();
+  const exam = useExamSession(session.questions, {
+    answerRevisions: session.answerRevisions,
+    answers: session.selectedOptionIds,
+    flaggedQuestionIds: session.flaggedQuestionIds,
+    visitedQuestionIds: session.visitedQuestionIds,
+  });
   const completion = Math.round(
-    (exam.answeredCount / EXAM_QUESTIONS.length) * 100,
+    (exam.answeredCount / session.questions.length) * 100,
   );
   const unansweredCount = [...exam.visitedQuestionIds].filter(
     (questionId) => !exam.answeredQuestionIds.has(questionId),
   ).length;
   const notVisitedCount =
-    EXAM_QUESTIONS.length - exam.visitedQuestionIds.size;
+    session.questions.length - exam.visitedQuestionIds.size;
+
+  useAttemptMonitoring(hasStarted);
+
+  const handleTimerExpiry = useCallback(() => {
+    startExpirySubmitTransition(async () => {
+      const result = await submitGuestAttempt();
+
+      if (!result.ok) {
+        setExpirySubmitError(result.message);
+        return;
+      }
+
+      router.replace("/exam/result");
+    });
+  }, [router]);
+
+  function handleProceed() {
+    setStartError(undefined);
+    startTransition(async () => {
+      const result = await beginGuestAttempt();
+
+      if (!result.ok) {
+        setStartError(result.message);
+        return;
+      }
+
+      setTiming({
+        expiresAt: result.expiresAt,
+        serverNow: result.serverNow,
+      });
+      setHasStarted(true);
+    });
+  }
 
   return (
     <div className="flex min-h-dvh flex-col bg-[#f5f6f8] lg:h-dvh lg:overflow-hidden">
       <header className="shrink-0 border-b bg-background">
         <div className="mx-auto flex h-16 w-full max-w-[1440px] items-center justify-between px-4 sm:px-6">
           <ExamBrand />
-          <CandidateSummary showLocation />
+          <CandidateSummary candidate={session.candidate} showLocation />
         </div>
       </header>
 
@@ -49,10 +99,18 @@ export function ExamWorkspace() {
               className="size-4 shrink-0 text-foreground/55 sm:size-5"
             />
             <h1 className="text-sm font-semibold text-foreground/90 sm:text-base">
-              {EXAM_TITLE}
+              {session.title}
             </h1>
           </div>
-          <ExamTimer className="shrink-0" isRunning={hasStarted} />
+          <ExamTimer
+            key={timing.expiresAt ?? "ready"}
+            className="shrink-0"
+            durationSeconds={session.durationSeconds}
+            expiresAt={timing.expiresAt}
+            isRunning={hasStarted}
+            onExpire={handleTimerExpiry}
+            serverNow={timing.serverNow}
+          />
         </div>
 
         <MobileExamToolbar
@@ -63,6 +121,7 @@ export function ExamWorkspace() {
           flaggedQuestionIds={exam.flaggedQuestionIds}
           notVisitedCount={notVisitedCount}
           onQuestionSelect={exam.showQuestion}
+          questions={session.questions}
           reviewLaterCount={exam.flaggedQuestionIds.size}
           unansweredCount={unansweredCount}
           visitedQuestionIds={exam.visitedQuestionIds}
@@ -92,6 +151,18 @@ export function ExamWorkspace() {
                     onSelect={exam.selectAnswer}
                   />
                 </div>
+                <p
+                  aria-live="polite"
+                  className={`mt-3 min-h-4 text-right text-[11px] ${
+                    exam.syncError
+                      ? "text-destructive"
+                      : "text-muted-foreground"
+                  }`}
+                >
+                  {expirySubmitError ??
+                    exam.syncError ??
+                    (exam.isSaving ? "Saving…" : "Saved")}
+                </p>
               </div>
             </div>
 
@@ -107,6 +178,7 @@ export function ExamWorkspace() {
               onQuestionNext={() =>
                 exam.showQuestion(exam.currentQuestionIndex + 1)
               }
+              totalQuestionCount={session.questions.length}
             />
           </section>
 
@@ -134,7 +206,7 @@ export function ExamWorkspace() {
                 role="progressbar"
                 aria-label="Assessment completion"
                 aria-valuemin={0}
-                aria-valuemax={EXAM_QUESTIONS.length}
+                aria-valuemax={session.questions.length}
                 aria-valuenow={exam.answeredCount}
               >
                 <div
@@ -159,6 +231,7 @@ export function ExamWorkspace() {
                 currentQuestionIndex={exam.currentQuestionIndex}
                 flaggedQuestionIds={exam.flaggedQuestionIds}
                 onQuestionSelect={exam.showQuestion}
+                questions={session.questions}
                 visitedQuestionIds={exam.visitedQuestionIds}
               />
             </div>
@@ -168,6 +241,7 @@ export function ExamWorkspace() {
                 answeredCount={exam.answeredCount}
                 notVisitedCount={notVisitedCount}
                 reviewLaterCount={exam.flaggedQuestionIds.size}
+                totalQuestionCount={session.questions.length}
                 unansweredCount={unansweredCount}
               />
             </div>
@@ -176,8 +250,13 @@ export function ExamWorkspace() {
       </main>
 
       <ExamInstructionsDialog
+        durationSeconds={session.durationSeconds}
+        errorMessage={startError}
+        isPending={isStarting}
+        onProceed={handleProceed}
         open={!hasStarted}
-        onProceed={() => setHasStarted(true)}
+        questionCount={session.questions.length}
+        title={session.title}
       />
     </div>
   );

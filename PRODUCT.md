@@ -21,8 +21,9 @@ Candidates enter through a dedicated login screen and continue into a formal onl
 ## Capabilities and Constraints
 
 - Built as a Next.js App Router application with shadcn UI primitives.
-- Frontend and interface behavior are being established before a backend service is selected.
-- Candidate identity, location, questions, and attempts currently use fixture data.
+- Supabase PostgreSQL is the selected managed backend service.
+- Candidate access is an unverified guest session rather than account authentication.
+- Candidate identity, location, questions, attempt state, timing, scoring, and results are backend-owned.
 - The assessment experience must remain conventional, professional, calm, and immediately recognizable as a test-taking screen.
 - Decorative, playful, experimental, or visually distracting treatments are out of scope.
 - The development server must not be started during agent work.
@@ -37,7 +38,8 @@ Candidates enter through a dedicated login screen and continue into a formal onl
 
 - Shahi logo asset at `public/assets/logo.png`.
 - Login and exam interface fixtures in the current project.
-- No final backend data model, production assessment content, or authenticated candidate session is available yet.
+- The initial backend data model and guest-session boundary are implemented.
+- The approved production question workbook has not yet been provided or imported.
 
 ## Product Principles
 

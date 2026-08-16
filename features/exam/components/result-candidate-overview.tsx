@@ -7,23 +7,25 @@ import {
   UserRoundIcon,
 } from "lucide-react";
 
-import { EXAM_CANDIDATE } from "@/features/exam/constants/exam-questions";
+import type { ExamCandidate } from "@/features/exam/types";
 import { cn } from "@/lib/utils";
 
 type ResultCandidateOverviewProps = {
+  candidate: ExamCandidate;
   correctAnswerCount: number;
+  incorrectAnswerCount: number;
   isQualified: boolean;
   passingPercentage: number;
   scorePercentage: number;
-  totalQuestionCount: number;
 };
 
 export function ResultCandidateOverview({
+  candidate,
   correctAnswerCount,
+  incorrectAnswerCount,
   isQualified,
   passingPercentage,
   scorePercentage,
-  totalQuestionCount,
 }: ResultCandidateOverviewProps) {
   const ResultIcon = isQualified ? CircleCheckIcon : CircleXIcon;
 
@@ -40,7 +42,7 @@ export function ResultCandidateOverview({
               <UserRoundIcon aria-hidden="true" className="size-5" />
             </span>
             <h2 className="min-w-0 text-xl font-semibold text-foreground">
-              {EXAM_CANDIDATE.name}
+              {candidate.name}
             </h2>
           </div>
 
@@ -53,7 +55,7 @@ export function ResultCandidateOverview({
               <div className="min-w-0">
                 <dt className="text-[11px] text-slate-500">Email address</dt>
                 <dd className="mt-0.5 truncate text-sm font-medium text-slate-800">
-                  {EXAM_CANDIDATE.email}
+                  {candidate.email}
                 </dd>
               </div>
             </div>
@@ -65,7 +67,7 @@ export function ResultCandidateOverview({
               <div>
                 <dt className="text-[11px] text-slate-500">State / Region</dt>
                 <dd className="mt-0.5 text-sm font-medium text-slate-800">
-                  {EXAM_CANDIDATE.state}
+                  {candidate.region}
                 </dd>
               </div>
             </div>
@@ -79,7 +81,7 @@ export function ResultCandidateOverview({
                   Training Center / Hub
                 </dt>
                 <dd className="mt-0.5 text-sm font-medium text-slate-800">
-                  {EXAM_CANDIDATE.hub}
+                  {candidate.hub}
                 </dd>
               </div>
             </div>
@@ -97,7 +99,7 @@ export function ResultCandidateOverview({
             <div className="mt-3 flex items-center justify-center gap-2 text-xs font-medium text-[#52657a]">
               <span>{correctAnswerCount} correct</span>
               <span aria-hidden="true" className="h-3 w-px bg-[#bac6d3]" />
-              <span>{totalQuestionCount - correctAnswerCount} incorrect</span>
+              <span>{incorrectAnswerCount} incorrect</span>
             </div>
           </div>
         </div>

@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { Clock3Icon } from "lucide-react";
 
-import { EXAM_DURATION_SECONDS } from "@/features/exam/constants/exam-questions";
 import { cn } from "@/lib/utils";
 
 function formatTime(totalSeconds: number) {
@@ -77,42 +76,84 @@ function TimerValue({
   );
 }
 
+function getSecondsRemaining(
+  durationSeconds: number,
+  expiresAt: string | null,
+  serverOffsetMilliseconds: number,
+) {
+  if (!expiresAt) {
+    return durationSeconds;
+  }
+
+  const serverAdjustedNow = Date.now() + serverOffsetMilliseconds;
+
+  return Math.max(
+    0,
+    Math.ceil((Date.parse(expiresAt) - serverAdjustedNow) / 1000),
+  );
+}
+
 export function ExamTimer({
   className,
+  durationSeconds,
+  expiresAt,
   isRunning = true,
+  onExpire,
+  serverNow,
   showLabel = true,
 }: {
   className?: string;
+  durationSeconds: number;
+  expiresAt: string | null;
   isRunning?: boolean;
+  onExpire?: () => void;
+  serverNow: string;
   showLabel?: boolean;
 }) {
-  const [secondsRemaining, setSecondsRemaining] = useState(
-    EXAM_DURATION_SECONDS,
+  const [serverOffsetMilliseconds] = useState(
+    () => Date.parse(serverNow) - Date.now(),
+  );
+  const [secondsRemaining, setSecondsRemaining] = useState(() =>
+    getSecondsRemaining(
+      durationSeconds,
+      expiresAt,
+      Date.parse(serverNow) - Date.now(),
+    ),
   );
 
   useEffect(() => {
-    if (!isRunning) {
+    if (!isRunning || !expiresAt) {
       return;
     }
 
-    const deadline = Date.now() + EXAM_DURATION_SECONDS * 1000;
     const updateTimer = () => {
-      const remaining = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
+      const nextSecondsRemaining = getSecondsRemaining(
+        durationSeconds,
+        expiresAt,
+        serverOffsetMilliseconds,
+      );
 
-      setSecondsRemaining(remaining);
+      setSecondsRemaining(nextSecondsRemaining);
 
-      if (remaining === 0) {
+      if (nextSecondsRemaining === 0) {
         window.clearInterval(timer);
+        onExpire?.();
       }
     };
     const timer = window.setInterval(updateTimer, 250);
 
     return () => window.clearInterval(timer);
-  }, [isRunning]);
+  }, [
+    durationSeconds,
+    expiresAt,
+    isRunning,
+    onExpire,
+    serverOffsetMilliseconds,
+  ]);
 
   const formattedTime = formatTime(secondsRemaining);
   const previousFormattedTime = formatTime(
-    Math.min(EXAM_DURATION_SECONDS, secondsRemaining + 1),
+    Math.min(durationSeconds, secondsRemaining + 1),
   );
 
   return (
