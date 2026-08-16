@@ -4,6 +4,7 @@ import {
   TriangleAlertIcon,
 } from "lucide-react";
 
+import { LogoutButton } from "@/features/auth/components/logout-button";
 import { ExamBrand } from "@/features/exam/components/exam-brand";
 import { ResultAnswerReview } from "@/features/exam/components/result-answer-review";
 import { ResultCandidateOverview } from "@/features/exam/components/result-candidate-overview";
@@ -52,8 +53,9 @@ export function ExamResultScreen({ result }: { result: GuestExamResult }) {
   return (
     <div className="min-h-dvh bg-[#fafafa]">
       <header className="sticky top-0 z-30 border-b bg-background">
-        <div className="mx-auto flex h-16 w-full max-w-[1440px] items-center px-4 sm:px-6">
+        <div className="mx-auto flex h-16 w-full max-w-[1440px] items-center justify-between gap-4 px-4 sm:px-6">
           <ExamBrand />
+          <LogoutButton />
         </div>
       </header>
 

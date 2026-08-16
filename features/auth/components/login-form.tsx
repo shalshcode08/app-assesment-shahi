@@ -2,11 +2,13 @@
 
 import { useActionState, useMemo, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import {
   Building2Icon,
   LoaderCircleIcon,
   MailIcon,
   MapPinIcon,
+  ShieldCheckIcon,
   UserRoundIcon,
 } from "lucide-react";
 
@@ -102,7 +104,7 @@ export function LoginForm({
             Trainer Assessment Login
           </CardTitle>
           <CardDescription className="text-xs sm:whitespace-nowrap">
-            Enter candidate details and select a training location.
+            Candidate portal. Enter your details and training location.
           </CardDescription>
         </CardHeader>
         <CardContent className="py-4">
@@ -295,6 +297,17 @@ export function LoginForm({
           </form>
         </CardContent>
       </Card>
+
+      <p className="text-center text-xs text-muted-foreground">
+        Managing this assessment?{" "}
+        <Link
+          href="/login/admin"
+          className="inline-flex items-center gap-1 font-medium text-foreground/80 underline underline-offset-4 hover:text-foreground"
+        >
+          <ShieldCheckIcon aria-hidden="true" className="size-3.5" />
+          Login as admin
+        </Link>
+      </p>
     </div>
   );
 }

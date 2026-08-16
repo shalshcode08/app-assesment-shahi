@@ -22,6 +22,12 @@ export async function getAttemptTokenHash() {
   return attemptToken ? hashAttemptToken(attemptToken) : null;
 }
 
+export async function clearAttemptCookie() {
+  const cookieStore = await cookies();
+
+  cookieStore.delete(ATTEMPT_COOKIE_NAME);
+}
+
 export async function setAttemptCookie(attemptToken: string) {
   const cookieStore = await cookies();
 
