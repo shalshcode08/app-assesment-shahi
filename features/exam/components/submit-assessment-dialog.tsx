@@ -2,6 +2,7 @@
 
 import { Dialog } from "@base-ui/react/dialog";
 import { CircleAlertIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 import { buttonVariants } from "@/components/ui/button";
 import { EXAM_QUESTIONS } from "@/features/exam/constants/exam-questions";
@@ -41,6 +42,7 @@ export function SubmitAssessmentDialog({
   triggerClassName,
   unansweredCount,
 }: SubmitAssessmentDialogProps) {
+  const router = useRouter();
   const totalQuestionCount = EXAM_QUESTIONS.length;
   const counts = {
     answered: answeredCount,
@@ -112,6 +114,7 @@ export function SubmitAssessmentDialog({
                 Resume
               </Dialog.Close>
               <Dialog.Close
+                onClick={() => router.replace("/exam/result")}
                 className={cn(
                   buttonVariants({ size: "lg" }),
                   "w-1/2 px-5",
