@@ -11,7 +11,9 @@ import type {
 } from "@/features/admin/types";
 
 const SETTINGS_PATH = "/admin/settings";
-const MAXIMUM_FILE_BYTES = 5 * 1024 * 1024;
+// Kept under the request-body cap that hosting platforms apply, so an
+// oversized sheet is refused with a readable message rather than by the edge.
+const MAXIMUM_FILE_BYTES = 4 * 1024 * 1024;
 
 const uploadSchema = z.object({
   mode: z.enum(["append", "replace"]),
@@ -38,7 +40,7 @@ export async function importQuestionBank(
   }
 
   if (file.size > MAXIMUM_FILE_BYTES) {
-    return { message: "That file is larger than 5 MB.", status: "error" };
+    return { message: "That file is larger than 4 MB.", status: "error" };
   }
 
   const parsed = parseQuestionWorkbook(
@@ -121,7 +123,7 @@ export async function analyzeQuestionWorkbook(
     return {
       ...empty,
       fileName: file.name,
-      message: "That file is larger than 5 MB.",
+      message: "That file is larger than 4 MB.",
       status: "error",
     };
   }

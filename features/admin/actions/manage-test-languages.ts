@@ -8,7 +8,7 @@ import { parseQuestionWorkbook } from "@/features/admin/lib/parse-question-workb
 import type { AdminActionState, QuestionImportState } from "@/features/admin/types";
 
 const SETTINGS_PATH = "/admin/settings";
-const MAXIMUM_FILE_BYTES = 5 * 1024 * 1024;
+const MAXIMUM_FILE_BYTES = 4 * 1024 * 1024;
 
 export async function saveTestLanguage(
   _previousState: AdminActionState,
@@ -102,7 +102,7 @@ export async function importQuestionTranslations(
   }
 
   if (file.size > MAXIMUM_FILE_BYTES) {
-    return { message: "That file is larger than 5 MB.", status: "error" };
+    return { message: "That file is larger than 4 MB.", status: "error" };
   }
 
   const parsed = parseQuestionWorkbook(

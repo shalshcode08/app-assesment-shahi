@@ -7,7 +7,7 @@ Workbooks are loaded in one place: `/admin/settings?tab=tests` → a test →
 shows what would be created — the count, the first few questions with their
 answer marked, and any rows that would be skipped — before an explicit
 **Import** writes it through the `import_admin_question_bank` RPC in one
-transaction. It accepts `.xlsx` and `.csv` up to 5 MB and reads the first
+transaction. It accepts `.xlsx` and `.csv` up to 4 MB and reads the first
 worksheet. The admin picks nothing else: a re-upload replaces the bank while no
 trainer has answered from it, and adds to it afterwards.
 

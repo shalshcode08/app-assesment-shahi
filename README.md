@@ -29,6 +29,27 @@ database to that state, keeping the schema and the administrator accounts.
 The Supabase secret key is server-only. It must never be renamed with a
 `NEXT_PUBLIC_` prefix or imported into a Client Component.
 
+## Deployment
+
+The app is a standard Next.js server: any host running Node 20.9 or later works,
+and Vercel needs no configuration beyond the environment variables.
+
+1. Apply every migration to the production Supabase project, then run
+   `supabase/imports/create-admin.sql` with a real address and password.
+2. Set three environment variables on the host: `NEXT_PUBLIC_SUPABASE_URL`,
+   `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, and `SUPABASE_SECRET_KEY`. The secret
+   key is server-only and must never carry a `NEXT_PUBLIC_` prefix.
+3. Build with `pnpm install --frozen-lockfile && pnpm build`, serve with
+   `pnpm start`.
+4. Serve over HTTPS. Session cookies are issued with `Secure` in production, so
+   sign-in silently fails over plain HTTP.
+5. When running more than one instance, set `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY`
+   to the same base64 32-byte value everywhere, or Server Actions encrypted by
+   one instance fail on another.
+
+Question sheets are posted to a Server Action, capped at 4 MB by the app to stay
+under the request-body limit serverless platforms impose.
+
 ## Verification
 
 The repository supports non-server checks with:
