@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   ChartColumnIcon,
+  FileSpreadsheetIcon,
   LayoutDashboardIcon,
   MapPinIcon,
   MenuIcon,
@@ -25,6 +26,7 @@ const NAV_ITEMS = [
   { href: "/admin/trainers", icon: UsersIcon, label: "Trainers" },
   { href: "/admin/leaderboard", icon: TrophyIcon, label: "Leaderboard" },
   { href: "/admin/analytics", icon: ChartColumnIcon, label: "Analytics" },
+  { href: "/admin/reports", icon: FileSpreadsheetIcon, label: "Reports" },
   { href: "/admin/settings", icon: SlidersHorizontalIcon, label: "Settings" },
 ] as const;
 

@@ -81,7 +81,7 @@ export default async function AdminLeaderboardPage({
           </div>
           <div className="flex items-center gap-2">
             <RefreshButton />
-            <Button render={<Link href={`/admin/leaderboard/export${exportQuery.size ? `?${exportQuery}` : ""}`} />} variant="outline" size="lg">
+            <Button nativeButton={false} render={<Link href={`/admin/leaderboard/export${exportQuery.size ? `?${exportQuery}` : ""}`} />} variant="outline" size="lg">
               <DownloadIcon aria-hidden="true" />
               Export CSV
             </Button>

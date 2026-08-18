@@ -57,3 +57,16 @@
   that `scripts/import-question-bank.py` already enforces.
 - Import the whole sheet in one transaction, and reject a workbook as a unit
   unless the admin explicitly opts into skipping invalid rows.
+
+## 2026-08-19: Reports and Excel export
+
+- Serve the report catalogue from one definition (`features/admin/reports.ts`)
+  that both the page and the export route read, so a new report is one entry
+  plus a branch in `get_admin_report`.
+- Write real `.xlsx` — typed cells, a frozen bold header, column widths, and
+  filters — with `node:zlib` rather than shipping a CSV with a spreadsheet
+  extension or adding a spreadsheet dependency.
+- Keep the date range in the URL so the row count on each card describes the
+  file that button will actually download.
+- Count report rows in a separate RPC; rendering the page must not pull every
+  row of every report.
