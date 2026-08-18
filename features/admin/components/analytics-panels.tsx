@@ -12,7 +12,6 @@ import {
   TINT,
   VIZ,
   formatDuration,
-  formatNumber,
   formatPercent,
   type Tint,
 } from "@/features/admin/components/dashboard-primitives";
@@ -86,163 +85,6 @@ export function OutcomeFunnel({ summary }: { summary: Analytics["summary"] }) {
         );
       })}
     </ul>
-  );
-}
-
-/* --------------------------------------------------------------- percentiles */
-
-/** Min–max rule with the quartile box drawn on it: the cohort at a glance. */
-export function ScorePercentiles({
-  passing,
-  summary,
-}: {
-  passing: number | null;
-  summary: Analytics["summary"];
-}) {
-  const { maxScore, medianScore, minScore, p10Score, p25Score, p75Score, p90Score } =
-    summary;
-
-  if (medianScore === null) {
-    return (
-      <p className="text-xs text-muted-foreground">No submitted attempts yet.</p>
-    );
-  }
-
-  const marks = [
-    { key: "Lowest", value: minScore },
-    { key: "10th", value: p10Score },
-    { key: "25th", value: p25Score },
-    { key: "Median", value: medianScore },
-    { key: "75th", value: p75Score },
-    { key: "90th", value: p90Score },
-    { key: "Highest", value: maxScore },
-  ];
-
-  return (
-    <div>
-      <div className="relative h-16">
-        <div className="absolute inset-x-0 top-6 h-2 rounded-full bg-muted" />
-        {p10Score !== null && p90Score !== null ? (
-          <div
-            className="absolute top-6 h-2 rounded-full"
-            style={{
-              backgroundColor: VIZ.seriesSoft,
-              left: `${p10Score}%`,
-              width: `${Math.max(1, p90Score - p10Score)}%`,
-            }}
-          />
-        ) : null}
-        {p25Score !== null && p75Score !== null ? (
-          <div
-            className="absolute top-5 h-4 rounded-md"
-            style={{
-              backgroundColor: VIZ.series,
-              left: `${p25Score}%`,
-              opacity: 0.9,
-              width: `${Math.max(1, p75Score - p25Score)}%`,
-            }}
-            title={`Middle half: ${p25Score}% to ${p75Score}%`}
-          />
-        ) : null}
-        <div
-          className="absolute top-3 h-8 w-[2px] rounded"
-          style={{ backgroundColor: VIZ.seriesDeep, left: `${medianScore}%` }}
-          title={`Median ${medianScore}%`}
-        />
-        {passing !== null ? (
-          <div
-            className="absolute top-2 h-10 border-l border-dashed"
-            style={{ borderColor: VIZ.critical, left: `${passing}%` }}
-            title={`Pass mark ${passing}%`}
-          />
-        ) : null}
-        <span className="absolute top-0 left-0 text-xs text-muted-foreground tabular-nums">
-          0%
-        </span>
-        <span className="absolute top-0 right-0 text-xs text-muted-foreground tabular-nums">
-          100%
-        </span>
-      </div>
-
-      <dl className="mt-1 grid grid-cols-4 gap-y-3 sm:grid-cols-7">
-        {marks.map((mark) => (
-          <div key={mark.key}>
-            <dt className="text-xs text-muted-foreground">{mark.key}</dt>
-            <dd className="text-sm font-medium text-foreground tabular-nums">
-              {formatPercent(mark.value)}
-            </dd>
-          </div>
-        ))}
-      </dl>
-
-      <p className="mt-3 text-xs leading-5 text-muted-foreground">
-        Scores sit within {formatNumber(summary.scoreStdDev)} points of the
-        mean for a typical trainer. {summary.perfectScores} scored full marks
-        and {summary.notQualified} finished below the pass mark.
-      </p>
-    </div>
-  );
-}
-
-/* ----------------------------------------------------------------- answer mix */
-
-export function AnswerMix({ summary }: { summary: Analytics["summary"] }) {
-  const correct = summary.averageCorrect ?? 0;
-  const incorrect = summary.averageIncorrect ?? 0;
-  const unanswered = summary.averageUnanswered ?? 0;
-  const total = correct + incorrect + unanswered;
-
-  if (total === 0) {
-    return (
-      <p className="text-xs text-muted-foreground">No submitted attempts yet.</p>
-    );
-  }
-
-  const parts = [
-    { color: VIZ.good, label: "Correct", value: correct },
-    { color: VIZ.critical, label: "Incorrect", value: incorrect },
-    { color: VIZ.warn, label: "Skipped", value: unanswered },
-  ];
-
-  return (
-    <div>
-      <div className="flex h-3 w-full overflow-hidden rounded-full bg-muted">
-        {parts.map((part) => (
-          <div
-            key={part.label}
-            style={{
-              backgroundColor: part.color,
-              width: `${(part.value / total) * 100}%`,
-            }}
-            title={`${part.label}: ${part.value.toFixed(1)} questions on average`}
-          />
-        ))}
-      </div>
-      <ul className="mt-4 grid gap-3 sm:grid-cols-3">
-        {parts.map((part) => (
-          <li key={part.label}>
-            <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <span
-                aria-hidden="true"
-                className="size-2.5 rounded-[3px]"
-                style={{ backgroundColor: part.color }}
-              />
-              {part.label}
-            </span>
-            <span className="mt-1 block text-lg font-semibold text-foreground tabular-nums">
-              {part.value.toFixed(1)}
-              <span className="ml-1 text-xs font-normal text-muted-foreground">
-                of {total.toFixed(0)}
-              </span>
-            </span>
-          </li>
-        ))}
-      </ul>
-      <p className="mt-3 text-xs leading-5 text-muted-foreground">
-        Averages per submitted attempt. {formatPercent(summary.flagRate, 1)} of
-        all served questions were marked for review before submitting.
-      </p>
-    </div>
   );
 }
 
@@ -340,7 +182,7 @@ export function IntegrityComparison({
   );
 }
 
-export function WarningLadder({
+function WarningLadder({
   ladder,
 }: {
   ladder: Analytics["warningLadder"];
@@ -401,7 +243,7 @@ export function WarningLadder({
 
 /* --------------------------------------------------------------- ranked bars */
 
-export function RankedBars({
+function RankedBars({
   emptyMessage,
   rows,
   thinBelow = 3,

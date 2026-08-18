@@ -51,14 +51,6 @@ export const TINT = {
 
 export type Tint = (typeof TINT)[keyof typeof TINT];
 
-export const TINT_CYCLE = [
-  TINT.blue,
-  TINT.teal,
-  TINT.violet,
-  TINT.amber,
-  TINT.green,
-] as const;
-
 /**
  * One surface treatment for every block on the page: 12px radius, hairline
  * border, 20px padding, no shadow. Consistency here is what separates a

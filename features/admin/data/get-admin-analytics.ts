@@ -195,7 +195,6 @@ const analyticsSchema = z.object({
 });
 
 export type Analytics = z.infer<typeof analyticsSchema>;
-export type AnalyticsItem = Analytics["itemAnalysis"][number];
 
 export async function getAdminAnalytics(
   trendDays = 30,

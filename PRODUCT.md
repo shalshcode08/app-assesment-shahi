@@ -38,8 +38,8 @@ Candidates enter through a dedicated login screen and continue into a formal onl
 
 - Shahi logo asset at `public/assets/logo.png`.
 - Login and exam interface fixtures in the current project.
-- The initial backend data model and guest-session boundary are implemented.
-- The approved production question workbook has not yet been provided or imported.
+- The backend data model, guest-session boundary, admin surface, reporting, and anti-cheating rules are implemented.
+- Administrators load the question bank themselves by uploading a workbook in Settings; the Garment Manufacturing workbook has been imported this way.
 
 ## Product Principles
 

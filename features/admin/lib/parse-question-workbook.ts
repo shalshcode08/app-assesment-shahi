@@ -2,9 +2,7 @@ import "server-only";
 
 import { FORMULA_MARKER, readWorkbookRows } from "@/features/admin/lib/read-workbook";
 
-// Implements docs/question-bank-import.md. The same contract the offline
-// adapter (scripts/import-question-bank.py) enforces, so a workbook that
-// imports here also imports there.
+// Implements the contract in docs/question-bank-import.md.
 
 export const OPTION_CODES = ["A", "B", "C", "D"] as const;
 const DEFAULT_CODE_PREFIX = "Q";

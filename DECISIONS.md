@@ -53,8 +53,8 @@
   offer deactivation or archiving instead; the same rule blocks replacing a
   question bank whose questions have been served.
 - Parse uploaded workbooks with `node:zlib` and the XML parts of the .xlsx
-  container rather than adding a spreadsheet dependency, mirroring the contract
-  that `scripts/import-question-bank.py` already enforces.
+  container rather than adding a spreadsheet dependency with a supply chain to
+  review.
 - Import the whole sheet in one transaction, and reject a workbook as a unit
   unless the admin explicitly opts into skipping invalid rows.
 

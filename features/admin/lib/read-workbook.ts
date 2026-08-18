@@ -5,7 +5,7 @@ import { inflateRawSync } from "node:zlib";
 // A .xlsx file is a ZIP of XML parts. Node ships the inflate half of that
 // (zlib) but no ZIP reader, and the sheets we need are two well-known entries,
 // so the archive is walked directly instead of adding a spreadsheet dependency
-// with a supply chain to review. Mirrors scripts/import-question-bank.py.
+// with a supply chain to review.
 
 const SIGNATURE_CENTRAL_DIRECTORY = 0x02014b50;
 const SIGNATURE_END_OF_DIRECTORY = 0x06054b50;
