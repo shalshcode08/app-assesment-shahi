@@ -158,3 +158,42 @@ export async function submitGuestAttempt(): Promise<MutationResult> {
 
   return { ok: true };
 }
+
+export async function setGuestAttemptLanguage(
+  languageId: string | null,
+): Promise<MutationResult> {
+  const parsedInput = z.uuid().nullable().safeParse(languageId);
+
+  if (!parsedInput.success) {
+    return { message: "That language is not available.", ok: false };
+  }
+
+  const context = await getMutationContext();
+
+  if (!context) {
+    return {
+      message: "Your assessment session has expired. Please log in again.",
+      ok: false,
+    };
+  }
+
+  const { error } = await context.supabase.rpc("set_guest_attempt_language", {
+    p_attempt_token_hash: context.attemptTokenHash,
+    p_language_id: parsedInput.data,
+  });
+
+  if (error) {
+    console.error("Unable to set the attempt language", {
+      code: error.code,
+      message: error.message,
+    });
+    return {
+      message: error.message.includes("ATTEMPT_NOT_ACTIVE")
+        ? "This assessment is no longer active."
+        : "The language could not be changed. Please try again.",
+      ok: false,
+    };
+  }
+
+  return { ok: true };
+}

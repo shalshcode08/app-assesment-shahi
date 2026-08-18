@@ -7,6 +7,7 @@ import {
   ClipboardListIcon,
   ClockIcon,
   EyeOffIcon,
+  LanguagesIcon,
   ListChecksIcon,
   PencilIcon,
   PlusIcon,
@@ -29,7 +30,9 @@ import {
   SubmitButton,
 } from "@/features/admin/components/settings-primitives";
 import { TestForm } from "@/features/admin/components/test-form";
+import { TestLanguages } from "@/features/admin/components/test-languages";
 import type { AdminTest } from "@/features/admin/data/get-admin-tests";
+import { cn } from "@/lib/utils";
 import {
   INITIAL_ADMIN_ACTION_STATE,
   type AdminActionState,
@@ -45,6 +48,18 @@ const STATUS_LABEL = {
   archived: "Archived",
   draft: "Draft",
   published: "Live",
+} as const;
+
+// The accent enters from the left edge and is gone by the middle of the card,
+// so the status registers on a scan without tinting the content. Gradients set
+// a background image, so the card keeps its own white underneath. The live card
+// is the only one lifted off the page.
+const STATUS_SURFACE = {
+  archived: "bg-linear-to-r from-muted/60 to-40% to-transparent",
+  draft:
+    "border-amber-600/25 bg-linear-to-r from-amber-500/[0.10] to-45% to-transparent",
+  published:
+    "border-green-700/25 bg-linear-to-r from-green-500/[0.09] to-45% to-transparent shadow-sm",
 } as const;
 
 function StatusForm({
@@ -139,14 +154,22 @@ function Stat({
   );
 }
 
-function TestCard({ test }: { test: AdminTest }) {
-  const [panel, setPanel] = useState<"none" | "edit" | "preview" | "upload">(
-    "none",
-  );
+function TestCard({
+  liveTitle,
+  test,
+}: {
+  liveTitle: string | null;
+  test: AdminTest;
+}) {
+  const [panel, setPanel] = useState<
+    "none" | "edit" | "languages" | "preview" | "upload"
+  >("none");
   const shortfall = test.questionsPerAttempt - test.readyQuestionCount;
 
   return (
-    <section className={`${SURFACE} p-4`}>
+    // cn() resolves the conflict: SURFACE carries bg-background and a neutral
+    // border, and the status classes must win over both.
+    <section className={cn(SURFACE, STATUS_SURFACE[test.status], "p-4")}>
       <div className="flex flex-wrap items-start gap-2">
         <ClipboardListIcon
           aria-hidden="true"
@@ -192,6 +215,16 @@ function TestCard({ test }: { test: AdminTest }) {
           >
             <ListChecksIcon aria-hidden="true" />
             Preview bank
+          </Button>
+          <Button
+            onClick={() => setPanel(panel === "languages" ? "none" : "languages")}
+            size="lg"
+            type="button"
+            variant="outline"
+          >
+            <LanguagesIcon aria-hidden="true" />
+            Languages
+            {test.languages.length > 0 ? ` (${test.languages.length})` : ""}
           </Button>
           <Button
             aria-label={`Edit ${test.title}`}
@@ -279,7 +312,9 @@ function TestCard({ test }: { test: AdminTest }) {
         <p className="text-xs text-muted-foreground">
           {test.status === "published"
             ? "Trainers signing in now start this test."
-            : "Publishing archives whatever test is live today."}
+            : liveTitle
+              ? `Only one test can be live. Publishing this one archives “${liveTitle}”.`
+              : "No test is live right now. Publishing makes this the one trainers get."}
         </p>
       </div>
 
@@ -295,6 +330,12 @@ function TestCard({ test }: { test: AdminTest }) {
         </div>
       ) : null}
 
+      {panel === "languages" ? (
+        <div className="mt-3">
+          <TestLanguages test={test} />
+        </div>
+      ) : null}
+
       {panel === "preview" ? (
         <div className="mt-3 rounded-lg border border-border/60 bg-muted/20 p-4">
           <QuestionBankPreviewPanel testId={test.id} />
@@ -306,6 +347,7 @@ function TestCard({ test }: { test: AdminTest }) {
 
 export function TestsManager({ tests }: { tests: AdminTest[] }) {
   const [isCreating, setIsCreating] = useState(false);
+  const live = tests.find((test) => test.status === "published") ?? null;
 
   return (
     <div className="flex flex-col gap-3">
@@ -320,7 +362,16 @@ export function TestsManager({ tests }: { tests: AdminTest[] }) {
           </h2>
           <p className="mt-1 text-xs text-muted-foreground">
             Configure the assessment, upload its question sheet, then publish it.
-            Exactly one test is live at a time.
+            Exactly one test is live at a time —{" "}
+            {live ? (
+              <>
+                trainers signing in now get{" "}
+                <span className="font-medium text-foreground">{live.title}</span>
+              </>
+            ) : (
+              "nothing is live right now, so trainers cannot start an assessment"
+            )}
+            .
           </p>
         </div>
         <Button
@@ -343,7 +394,7 @@ export function TestsManager({ tests }: { tests: AdminTest[] }) {
       ) : null}
 
       {tests.map((test) => (
-        <TestCard key={test.id} test={test} />
+        <TestCard key={test.id} liveTitle={live?.title ?? null} test={test} />
       ))}
     </div>
   );

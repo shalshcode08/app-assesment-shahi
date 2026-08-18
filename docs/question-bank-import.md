@@ -109,3 +109,25 @@ Four rows are damaged at source and were imported with `--skip-invalid`:
 - `GMQ-025` — Option C is blank; Option B holds `Class 301 C.Class 504`.
 
 Fix these in the workbook and re-run with `--replace` to load all 100.
+
+## Translated sheets
+
+A test can be offered in more than one language. In `/admin/settings?tab=tests`
+→ a test → **Languages**, the admin names the language and uploads the same
+sheet translated.
+
+The translated sheet uses the same columns as the original. Two of them must
+match the original exactly:
+
+- `Question No.` — how a translated row finds the question it belongs to.
+- `Correct Answer` — the same letter as the original. A different letter means
+  the options were reordered, so the letters no longer name the same answers,
+  and the row is reported instead of imported.
+
+`Question` and `Option A`–`D` carry the translated text. Marks, category,
+difficulty, and the answer key are never read from a translated sheet; they stay
+on the original question. Rows naming a question number the test does not have
+are reported by code after the upload.
+
+Removing a language deletes its translations and leaves the original questions
+untouched.

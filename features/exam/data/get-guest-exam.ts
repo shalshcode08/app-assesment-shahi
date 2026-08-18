@@ -20,7 +20,12 @@ const guestAttemptSchema = z.object({
   durationSeconds: z.number().int().positive(),
   expiresAt: z.string().nullable(),
   instructions: z.string().nullable().default(null),
+  languageId: z.uuid().nullable().default(null),
+  languages: z
+    .array(z.object({ code: z.string(), id: z.uuid(), name: z.string() }))
+    .default([]),
   maxTabSwitches: z.number().int().nonnegative().nullable().default(null),
+  tabWarningCount: z.number().int().nonnegative().default(0),
   questions: z.array(
     z.object({
       answerRevision: z.number().int().nonnegative(),
@@ -105,7 +110,10 @@ export async function getGuestExam(): Promise<GuestExamSession | null> {
     expiresAt: parsedAttempt.data.expiresAt,
     flaggedQuestionIds,
     instructions: parsedAttempt.data.instructions,
+    languageId: parsedAttempt.data.languageId,
+    languages: parsedAttempt.data.languages,
     maxTabSwitches: parsedAttempt.data.maxTabSwitches,
+    tabWarningCount: parsedAttempt.data.tabWarningCount,
     questions: parsedAttempt.data.questions.map((question) => ({
       id: question.id,
       options: question.options,

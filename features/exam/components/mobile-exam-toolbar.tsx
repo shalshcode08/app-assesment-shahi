@@ -6,13 +6,18 @@ import { ListChecksIcon, XIcon } from "lucide-react";
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import { QuestionNumberGrid } from "@/features/exam/components/question-number-grid";
+import { LanguageSwitcher } from "@/features/exam/components/language-switcher";
 import { QuestionStatusLegend } from "@/features/exam/components/question-status-legend";
 import { SubmitAssessmentDialog } from "@/features/exam/components/submit-assessment-dialog";
-import type { ExamQuestion } from "@/features/exam/types";
+import { TabSwitchIndicator } from "@/features/exam/components/tab-switch-indicator";
+import type { ExamLanguage, ExamQuestion } from "@/features/exam/types";
 import { cn } from "@/lib/utils";
 
 type MobileExamToolbarProps = {
   answeredCount: number;
+  languageId: string | null;
+  languages: ExamLanguage[];
+  maxTabSwitches: number | null;
   answeredQuestionIds: Set<string>;
   completion: number;
   currentQuestionIndex: number;
@@ -21,12 +26,16 @@ type MobileExamToolbarProps = {
   onQuestionSelect: (index: number) => void;
   questions: ExamQuestion[];
   reviewLaterCount: number;
+  tabSwitchCount: number;
   unansweredCount: number;
   visitedQuestionIds: Set<string>;
 };
 
 export function MobileExamToolbar({
   answeredCount,
+  languageId,
+  languages,
+  maxTabSwitches,
   answeredQuestionIds,
   completion,
   currentQuestionIndex,
@@ -35,6 +44,7 @@ export function MobileExamToolbar({
   onQuestionSelect,
   questions,
   reviewLaterCount,
+  tabSwitchCount,
   unansweredCount,
   visitedQuestionIds,
 }: MobileExamToolbarProps) {
@@ -47,12 +57,19 @@ export function MobileExamToolbar({
 
   return (
     <div className="sticky top-0 z-20 border-b bg-neutral-100 px-4 py-3 lg:hidden">
-      <div className="flex items-center justify-between text-xs">
+      <div className="flex items-center justify-between gap-2 text-xs">
         <span className="font-medium text-foreground/80">
           Question {currentQuestionIndex + 1} of {questions.length}
         </span>
-        <span className="tabular-nums text-muted-foreground">
-          {completion}% complete
+        <span className="flex items-center gap-2">
+          <LanguageSwitcher
+            languages={languages}
+            selectedLanguageId={languageId}
+          />
+          <TabSwitchIndicator count={tabSwitchCount} limit={maxTabSwitches} />
+          <span className="tabular-nums text-muted-foreground">
+            {completion}% complete
+          </span>
         </span>
       </div>
 

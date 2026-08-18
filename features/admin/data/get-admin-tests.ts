@@ -20,6 +20,14 @@ const testsSchema = z.array(
     durationSeconds: z.number(),
     id: z.uuid(),
     instructions: z.string().nullable(),
+    languages: z.array(
+      z.object({
+        code: z.string(),
+        id: z.uuid(),
+        name: z.string(),
+        translatedCount: count,
+      }),
+    ),
     isActive: z.boolean(),
     maxTabSwitches: z.number().nullable(),
     maximumAttemptsPerEmail: z.number(),
@@ -39,6 +47,7 @@ const testsSchema = z.array(
 );
 
 export type AdminTest = z.infer<typeof testsSchema>[number];
+export type AdminTestLanguage = AdminTest["languages"][number];
 
 export async function getAdminTests(): Promise<AdminTest[] | null> {
   if (!isSupabaseConfigured()) {

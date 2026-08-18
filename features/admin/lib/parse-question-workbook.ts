@@ -200,9 +200,12 @@ export function parseQuestionWorkbook(
     }
 
     const rawCode = cell(row, "code");
-    // A bare sequence number becomes a stable zero-padded external code.
-    const code = /^\d+$/.test(rawCode)
-      ? `${DEFAULT_CODE_PREFIX}-${rawCode.padStart(3, "0")}`
+    // A bare sequence number becomes a stable zero-padded external code. A
+    // spreadsheet may hand the same number over as "7", "07" or "7.0"
+    // depending on the cell format, and all three mean question seven.
+    const sequence = /^0*(\d+)(?:\.0+)?$/.exec(rawCode);
+    const code = sequence
+      ? `${DEFAULT_CODE_PREFIX}-${sequence[1].padStart(3, "0")}`
       : rawCode;
     const options = OPTION_CODES.map((optionCode) => ({
       code: optionCode,

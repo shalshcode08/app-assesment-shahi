@@ -16,6 +16,7 @@ export function ExamInstructionsDialog({
   customInstructions,
   errorMessage,
   isPending,
+  languageSwitcher,
   maxTabSwitches,
   onProceed,
   durationSeconds,
@@ -26,6 +27,7 @@ export function ExamInstructionsDialog({
   durationSeconds: number;
   errorMessage?: string;
   isPending: boolean;
+  languageSwitcher?: React.ReactNode;
   maxTabSwitches?: number | null;
   open: boolean;
   onProceed: () => void;
@@ -65,6 +67,10 @@ export function ExamInstructionsDialog({
             <Dialog.Description className="mt-1.5 text-center text-sm text-muted-foreground">
               {title}
             </Dialog.Description>
+
+            {languageSwitcher ? (
+              <div className="mt-4 flex justify-center">{languageSwitcher}</div>
+            ) : null}
 
             <ol className="mt-6 grid gap-3.5 border-y py-5">
               {instructions.map((instruction, index) => (

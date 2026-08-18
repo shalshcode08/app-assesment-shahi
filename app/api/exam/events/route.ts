@@ -70,12 +70,23 @@ export async function POST(request: Request) {
   }
 
   // The attempt is submitted server-side once the test's tab-switch allowance
-  // is passed; the flag only tells the browser to stop and show the result.
+  // is passed. The tally comes back so the exam screen can tell the candidate
+  // how many switches they have left before that happens.
   const outcome = z
-    .object({ autoSubmitted: z.boolean() })
+    .object({
+      autoSubmitted: z.boolean(),
+      maxTabSwitches: z.number().int().nonnegative().nullable(),
+      tabWarningCount: z.number().int().nonnegative(),
+    })
     .safeParse(data);
 
-  return NextResponse.json({
-    autoSubmitted: outcome.success ? outcome.data.autoSubmitted : false,
-  });
+  if (!outcome.success) {
+    return NextResponse.json({
+      autoSubmitted: false,
+      maxTabSwitches: null,
+      tabWarningCount: 0,
+    });
+  }
+
+  return NextResponse.json(outcome.data);
 }

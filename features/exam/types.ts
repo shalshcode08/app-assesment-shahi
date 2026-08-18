@@ -10,6 +10,12 @@ export type ExamQuestion = {
   options: ExamOption[];
 };
 
+export type ExamLanguage = {
+  code: string;
+  id: string;
+  name: string;
+};
+
 export type ExamCandidate = {
   email: string;
   hub: string;
@@ -25,12 +31,15 @@ export type GuestExamSession = {
   expiresAt: string | null;
   flaggedQuestionIds: string[];
   instructions: string | null;
+  languageId: string | null;
+  languages: ExamLanguage[];
   maxTabSwitches: number | null;
   questions: ExamQuestion[];
   selectedOptionIds: Record<string, string>;
   serverNow: string;
   startedAt: string | null;
   status: "ready" | "in_progress";
+  tabWarningCount: number;
   title: string;
   visitedQuestionIds: string[];
 };

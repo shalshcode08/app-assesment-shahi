@@ -11,12 +11,18 @@ import { ExamBrand } from "@/features/exam/components/exam-brand";
 import { ExamControls } from "@/features/exam/components/exam-controls";
 import { ExamInstructionsDialog } from "@/features/exam/components/exam-instructions-dialog";
 import { ExamTimer } from "@/features/exam/components/exam-timer";
+import { LanguageSwitcher } from "@/features/exam/components/language-switcher";
 import { MobileExamToolbar } from "@/features/exam/components/mobile-exam-toolbar";
 import { QuestionNumberGrid } from "@/features/exam/components/question-number-grid";
 import { QuestionOptions } from "@/features/exam/components/question-options";
 import { QuestionStatusLegend } from "@/features/exam/components/question-status-legend";
 import { QuestionStatusSummary } from "@/features/exam/components/question-status-summary";
 import { SubmitAssessmentDialog } from "@/features/exam/components/submit-assessment-dialog";
+import {
+  TabSwitchAutoSubmitDialog,
+  TabSwitchWarningDialog,
+} from "@/features/exam/components/tab-switch-dialog";
+import { TabSwitchIndicator } from "@/features/exam/components/tab-switch-indicator";
 import { useExamSession } from "@/features/exam/hooks/use-exam-session";
 import { useAttemptMonitoring } from "@/features/exam/hooks/use-attempt-monitoring";
 import type { GuestExamSession } from "@/features/exam/types";
@@ -49,7 +55,11 @@ export function ExamWorkspace({ session }: { session: GuestExamSession }) {
   const notVisitedCount =
     session.questions.length - exam.visitedQuestionIds.size;
 
-  useAttemptMonitoring(hasStarted);
+  const monitoring = useAttemptMonitoring(
+    hasStarted,
+    session.maxTabSwitches,
+    session.tabWarningCount,
+  );
 
   const handleTimerExpiry = useCallback(() => {
     startExpirySubmitTransition(async () => {
@@ -102,15 +112,27 @@ export function ExamWorkspace({ session }: { session: GuestExamSession }) {
               {session.title}
             </h1>
           </div>
-          <ExamTimer
-            key={timing.expiresAt ?? "ready"}
-            className="shrink-0"
-            durationSeconds={session.durationSeconds}
-            expiresAt={timing.expiresAt}
-            isRunning={hasStarted}
-            onExpire={handleTimerExpiry}
-            serverNow={timing.serverNow}
-          />
+          <div className="flex shrink-0 items-center gap-3">
+            <LanguageSwitcher
+              className="hidden sm:inline-flex"
+              languages={session.languages}
+              selectedLanguageId={session.languageId}
+            />
+            <TabSwitchIndicator
+              className="hidden sm:inline-flex"
+              count={monitoring.tabSwitchCount}
+              limit={session.maxTabSwitches}
+            />
+            <ExamTimer
+              key={timing.expiresAt ?? "ready"}
+              className="shrink-0"
+              durationSeconds={session.durationSeconds}
+              expiresAt={timing.expiresAt}
+              isRunning={hasStarted}
+              onExpire={handleTimerExpiry}
+              serverNow={timing.serverNow}
+            />
+          </div>
         </div>
 
         <MobileExamToolbar
@@ -119,10 +141,14 @@ export function ExamWorkspace({ session }: { session: GuestExamSession }) {
           completion={completion}
           currentQuestionIndex={exam.currentQuestionIndex}
           flaggedQuestionIds={exam.flaggedQuestionIds}
+          languageId={session.languageId}
+          languages={session.languages}
+          maxTabSwitches={session.maxTabSwitches}
           notVisitedCount={notVisitedCount}
           onQuestionSelect={exam.showQuestion}
           questions={session.questions}
           reviewLaterCount={exam.flaggedQuestionIds.size}
+          tabSwitchCount={monitoring.tabSwitchCount}
           unansweredCount={unansweredCount}
           visitedQuestionIds={exam.visitedQuestionIds}
         />
@@ -249,8 +275,28 @@ export function ExamWorkspace({ session }: { session: GuestExamSession }) {
         </div>
       </main>
 
+      <TabSwitchWarningDialog
+        count={monitoring.pendingWarning ?? monitoring.tabSwitchCount}
+        limit={session.maxTabSwitches}
+        onAcknowledge={monitoring.acknowledgeWarning}
+        open={monitoring.pendingWarning !== null && !monitoring.autoSubmitted}
+      />
+
+      <TabSwitchAutoSubmitDialog
+        count={monitoring.tabSwitchCount}
+        limit={session.maxTabSwitches}
+        onContinue={() => router.replace("/exam/result")}
+        open={monitoring.autoSubmitted}
+      />
+
       <ExamInstructionsDialog
         customInstructions={session.instructions}
+        languageSwitcher={
+          <LanguageSwitcher
+            languages={session.languages}
+            selectedLanguageId={session.languageId}
+          />
+        }
         durationSeconds={session.durationSeconds}
         errorMessage={startError}
         maxTabSwitches={session.maxTabSwitches}

@@ -70,3 +70,52 @@
   file that button will actually download.
 - Count report rows in a separate RPC; rendering the page must not pull every
   row of every report.
+
+## 2026-08-19: Tab-switch protocol during an attempt
+
+- Enforce the allowance on the server: `record_guest_attempt_event` submits the
+  attempt in the same transaction that takes the count past the limit, so
+  closing the tab or dropping the response cannot avoid it.
+- Return the tally and the limit from the events endpoint and mirror them in the
+  exam screen. The browser never decides anything; it only reports where the
+  candidate stands.
+- Warn on every switch with the running count, what remains, and the
+  consequence, and state the rule in the instructions before the timer starts. A
+  candidate should never meet the limit for the first time by being submitted.
+- Carry the recorded count on the attempt so a reload does not show a clean
+  slate the candidate does not have.
+- Count both `page_hidden` and `window_blurred`: switching application on macOS
+  fires only a blur and leaves the page "visible", so counting tab visibility
+  alone missed the most common way to leave. A three-second quiet window on the
+  server collapses the pair a single departure can fire, and the browser warns
+  from the server's tally rather than from its own events, so whichever event a
+  platform sends the candidate is warned exactly once.
+
+## 2026-08-19: Test languages
+
+- Treat a language as a translation layer over the question bank, never a second
+  bank. The answer key, marks, and sampling stay on the original questions, so a
+  translated attempt is scored by exactly the same rules and reports still
+  aggregate across languages.
+- Match uploaded translations to the original by question code, and refuse a row
+  whose correct answer disagrees with the original: that means the options were
+  reordered and the letters no longer name the same answers.
+- Reuse the original sheet format for translations so an admin learns one
+  layout, and report unmatched and reordered rows by code after the upload.
+- Let the candidate switch language during the attempt and store the choice on
+  the attempt, so a reload keeps it and the admin can see which language an
+  attempt was taken in. Text resolves per question with a fallback to the
+  original, which keeps a partly translated language usable instead of blank.
+- Switching re-reads the attempt rather than re-creating it: question and option
+  ids are unchanged, so answers, flags, and the timer survive the switch.
+
+## 2026-08-19: Exactly one live test
+
+- Enforce the single live test in the database with a partial unique index on
+  `assessment_versions (status) where status = 'published'`, not only in the
+  publish function. A direct update, a restored dump, or two admins publishing
+  at the same moment could otherwise leave `create_guest_attempt` choosing
+  between two live tests by timestamp.
+- Archive the previous live test inside the same transaction that publishes the
+  new one, and report a concurrent publish as a conflict the admin can retry
+  rather than as a constraint error.
