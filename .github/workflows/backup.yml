@@ -1,0 +1,98 @@
+name: Database backup
+
+# A dump of the assessment data to Cloudflare R2. Attempts cannot be recreated
+# once lost, so this runs whether or not anyone remembers it exists.
+#
+# Daily at 19:40 UTC, which is early morning in IST and so lands after a day of
+# sittings rather than in the middle of one. Run it by hand from the Actions tab
+# before anything risky, such as applying a migration or resetting data.
+
+on:
+  schedule:
+    - cron: "40 19 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: database-backup
+  cancel-in-progress: false
+
+jobs:
+  dump:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Install PostgreSQL client
+        run: |
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl -fsSL -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc \
+            https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] \
+            https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" \
+            | sudo tee /etc/apt/sources.list.d/pgdg.list > /dev/null
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends postgresql-client-17
+          pg_dump --version
+
+      - name: Dump the assessment schemas
+        env:
+          # Use the direct (unpooled) connection string: pg_dump over a pooler
+          # can produce an inconsistent snapshot.
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          set -euo pipefail
+          stamp="$(date -u +%Y/%m/%d/%Y%m%dT%H%M%SZ)"
+          echo "OBJECT_KEY=assessment/${stamp}.sql.gz" >> "$GITHUB_ENV"
+
+          # Only the schemas this application owns. Supabase's own schemas are
+          # theirs to restore and only make the dump harder to replay elsewhere.
+          pg_dump "$SUPABASE_DB_URL" \
+            --schema=public \
+            --schema=private \
+            --no-owner \
+            --no-tablespaces \
+            --quote-all-identifiers \
+            --format=plain \
+            | gzip -9 > backup.sql.gz
+
+          size=$(stat -c%s backup.sql.gz)
+          echo "Dump size: ${size} bytes"
+
+          # A truncated or empty dump is worse than none, because it looks like
+          # a backup. Refuse to upload one.
+          if [ "$size" -lt 10000 ]; then
+            echo "::error::Dump is implausibly small (${size} bytes); not uploading."
+            exit 1
+          fi
+
+          if ! gzip -t backup.sql.gz; then
+            echo "::error::Dump failed its integrity check; not uploading."
+            exit 1
+          fi
+
+          zcat backup.sql.gz | grep -q "CREATE TABLE \"public\".\"attempts\"" \
+            || { echo "::error::Dump does not contain the attempts table."; exit 1; }
+
+      - name: Upload to R2
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+          # R2 rejects the additional checksums newer AWS CLI versions send by
+          # default; ask for them only where the protocol requires them.
+          AWS_REQUEST_CHECKSUM_CALCULATION: when_required
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+        run: |
+          set -euo pipefail
+          endpoint="https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com"
+
+          aws s3 cp backup.sql.gz "s3://${R2_BUCKET}/${OBJECT_KEY}" \
+            --endpoint-url "$endpoint"
+
+          # A second copy under a fixed key, so a restore never has to hunt for
+          # the newest object.
+          aws s3 cp backup.sql.gz "s3://${R2_BUCKET}/assessment/latest.sql.gz" \
+            --endpoint-url "$endpoint"
+
+          echo "Uploaded ${OBJECT_KEY}"

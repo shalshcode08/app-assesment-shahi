@@ -50,6 +50,10 @@ and Vercel needs no configuration beyond the environment variables.
 Question sheets are posted to a Server Action, capped at 4 MB by the app to stay
 under the request-body limit serverless platforms impose.
 
+Daily database backups to Cloudflare R2 are set up in
+[`docs/backup-and-restore.md`](docs/backup-and-restore.md), including what the
+restore procedure is and what it does not cover.
+
 ## Verification
 
 The repository supports non-server checks with:

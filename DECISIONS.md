@@ -119,3 +119,18 @@
 - Archive the previous live test inside the same transaction that publishes the
   new one, and report a concurrent publish as a conflict the admin can retry
   rather than as a constraint error.
+
+## 2026-08-19: Backups to Cloudflare R2
+
+- Dump the `public` and `private` schemas to R2 once a day, and run the job by
+  hand at the end of a sitting day or before a migration. A day is the accepted
+  recovery point; the manual run is what covers the sittings inside it.
+- Exclude Supabase's own schemas from the dump. They belong to the platform, and
+  carrying them makes the dump harder to replay anywhere else.
+- Fail the job rather than upload a dump that is implausibly small, fails its
+  gzip check, or lacks the `attempts` table. A file that looks like a backup but
+  is not one is worse than no file.
+- Treat R2 as recovery, not availability: it cannot serve the application during
+  a Supabase outage, and the plan for one is to reschedule sittings. A promotable
+  standby would need the `service_role` permission model rebuilt on the target,
+  which is not worth carrying until assessments run continuously.
