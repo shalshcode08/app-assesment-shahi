@@ -17,8 +17,10 @@ const trainersSchema = z.array(
   z.object({
     attemptId: z.uuid(),
     correctCount: z.number().nullable(),
+    durationSeconds: numeric,
     email: z.string(),
     hub: z.string(),
+    incorrectCount: z.number().nullable(),
     maximumScore: numeric,
     name: z.string(),
     qualified: z.boolean().nullable(),
@@ -28,6 +30,8 @@ const trainersSchema = z.array(
     startedAt: z.string().nullable(),
     status: z.string(),
     submittedAt: z.string().nullable(),
+    tabWarningCount: z.number(),
+    unansweredCount: z.number().nullable(),
   }),
 );
 

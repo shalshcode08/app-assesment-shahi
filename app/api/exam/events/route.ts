@@ -54,7 +54,7 @@ export async function POST(request: Request) {
   }
 
   const supabase = createServerSupabaseClient();
-  const { error } = await supabase.rpc("record_guest_attempt_event", {
+  const { data, error } = await supabase.rpc("record_guest_attempt_event", {
     p_attempt_token_hash: attemptTokenHash,
     p_client_occurred_at: parsedEvent.data.clientOccurredAt,
     p_dedupe_key: parsedEvent.data.dedupeKey,
@@ -69,5 +69,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: "Event was not recorded." }, { status: 409 });
   }
 
-  return new NextResponse(null, { status: 204 });
+  // The attempt is submitted server-side once the test's tab-switch allowance
+  // is passed; the flag only tells the browser to stop and show the result.
+  const outcome = z
+    .object({ autoSubmitted: z.boolean() })
+    .safeParse(data);
+
+  return NextResponse.json({
+    autoSubmitted: outcome.success ? outcome.data.autoSubmitted : false,
+  });
 }

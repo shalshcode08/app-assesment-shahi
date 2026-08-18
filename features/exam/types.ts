@@ -24,6 +24,8 @@ export type GuestExamSession = {
   durationSeconds: number;
   expiresAt: string | null;
   flaggedQuestionIds: string[];
+  instructions: string | null;
+  maxTabSwitches: number | null;
   questions: ExamQuestion[];
   selectedOptionIds: Record<string, string>;
   serverNow: string;

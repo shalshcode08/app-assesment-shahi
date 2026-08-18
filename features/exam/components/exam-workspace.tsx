@@ -250,8 +250,10 @@ export function ExamWorkspace({ session }: { session: GuestExamSession }) {
       </main>
 
       <ExamInstructionsDialog
+        customInstructions={session.instructions}
         durationSeconds={session.durationSeconds}
         errorMessage={startError}
+        maxTabSwitches={session.maxTabSwitches}
         isPending={isStarting}
         onProceed={handleProceed}
         open={!hasStarted}

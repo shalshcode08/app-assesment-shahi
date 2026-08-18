@@ -13,26 +13,44 @@ function formatDuration(durationSeconds: number) {
 
 export function ExamInstructionsDialog({
   open,
+  customInstructions,
   errorMessage,
   isPending,
+  maxTabSwitches,
   onProceed,
   durationSeconds,
   questionCount,
   title,
 }: {
+  customInstructions?: string | null;
   durationSeconds: number;
   errorMessage?: string;
   isPending: boolean;
+  maxTabSwitches?: number | null;
   open: boolean;
   onProceed: () => void;
   questionCount: number;
   title: string;
 }) {
+  // A tab-switch allowance ends the attempt on its own, so the rule is stated
+  // plainly instead of the softer default warning.
+  const tabRule =
+    typeof maxTabSwitches === "number"
+      ? maxTabSwitches === 0
+        ? "Leaving this tab even once will submit your assessment automatically. Submitted answers cannot be changed."
+        : `Browser tab changes are recorded. Leaving this tab more than ${maxTabSwitches} time${maxTabSwitches === 1 ? "" : "s"} will submit your assessment automatically. Submitted answers cannot be changed.`
+      : "Browser tab changes may be recorded. Submitted answers cannot be changed.";
+
   const instructions = [
     `The assessment contains ${questionCount} single-choice questions and has a ${formatDuration(durationSeconds)} time limit.`,
     "The timer begins when you proceed and continues until the assessment is submitted.",
     "You can move between questions and mark any question for review before submitting.",
-    "Browser tab changes may be recorded. Submitted answers cannot be changed.",
+    tabRule,
+    // Anything the admin wrote for this test is appended as its own points.
+    ...(customInstructions ?? "")
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean),
   ];
 
   return (

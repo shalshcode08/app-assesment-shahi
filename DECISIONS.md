@@ -37,3 +37,23 @@
 - Persist each candidate's sampled question order and option order so reloads never reshuffle an active attempt.
 - Keep answer keys in a private schema and score the complete attempt transactionally on the server.
 - Start the authoritative database timer only when the candidate proceeds through the instruction modal.
+
+## 2026-08-18: Admin settings, locations, and test configuration
+
+- Give admins one `/admin/settings` route with two tabs: the location catalogue
+  trainers pick from, and test configuration including the question bank.
+- Keep every settings mutation behind a security definer RPC gated on a live
+  admin session, so `service_role` still holds no direct table grants.
+- Treat one test as one assessment plus its newest version. Admins edit a single
+  live configuration; version rows stay so past attempts keep the settings they
+  ran under.
+- Publishing a test archives whatever was published before, so
+  `create_guest_attempt` always resolves exactly one live assessment.
+- Refuse to delete a state, centre, or test that trainers have already used, and
+  offer deactivation or archiving instead; the same rule blocks replacing a
+  question bank whose questions have been served.
+- Parse uploaded workbooks with `node:zlib` and the XML parts of the .xlsx
+  container rather than adding a spreadsheet dependency, mirroring the contract
+  that `scripts/import-question-bank.py` already enforces.
+- Import the whole sheet in one transaction, and reject a workbook as a unit
+  unless the admin explicitly opts into skipping invalid rows.

@@ -5,11 +5,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  BookOpenIcon,
+  ChartColumnIcon,
   LayoutDashboardIcon,
   MapPinIcon,
   MenuIcon,
   ShieldCheckIcon,
+  SlidersHorizontalIcon,
   TrophyIcon,
   UsersIcon,
   XIcon,
@@ -18,14 +19,13 @@ import {
 import { AdminLogoutButton } from "@/features/admin/components/admin-logout-button";
 import { cn } from "@/lib/utils";
 
-// Only Overview is built. The other two are shown as unavailable rather than
-// as links, so the sidebar reads as a roadmap without offering dead ends.
 const NAV_ITEMS = [
   { href: "/admin/dashboard", icon: LayoutDashboardIcon, label: "Overview" },
   { href: "/admin/states", icon: MapPinIcon, label: "States & centres" },
   { href: "/admin/trainers", icon: UsersIcon, label: "Trainers" },
   { href: "/admin/leaderboard", icon: TrophyIcon, label: "Leaderboard" },
-  { href: null, icon: BookOpenIcon, label: "Question bank" },
+  { href: "/admin/analytics", icon: ChartColumnIcon, label: "Analytics" },
+  { href: "/admin/settings", icon: SlidersHorizontalIcon, label: "Settings" },
 ] as const;
 
 function initialsOf(value: string) {
@@ -66,26 +66,7 @@ function SidebarContent({
         <ul className="flex flex-col gap-1">
           {NAV_ITEMS.map((item) => {
             const Icon = item.icon;
-            const isActive = item.href !== null && pathname === item.href;
-
-            if (item.href === null) {
-              return (
-                <li key={item.label}>
-                  <span
-                    aria-disabled="true"
-                    className="flex cursor-default items-center justify-between gap-2 rounded-lg px-3 py-2 text-sm text-muted-foreground/55"
-                  >
-                    <span className="flex items-center gap-2">
-                      <Icon aria-hidden="true" className="size-4" />
-                      {item.label}
-                    </span>
-                    <span className="text-xs">
-                      Soon
-                    </span>
-                  </span>
-                </li>
-              );
-            }
+            const isActive = pathname === item.href;
 
             return (
               <li key={item.label}>

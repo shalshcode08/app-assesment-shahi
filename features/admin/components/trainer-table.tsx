@@ -6,6 +6,8 @@ import {
   Clock3Icon,
   EyeIcon,
   MapPinIcon,
+  MonitorXIcon,
+  ShieldCheckIcon,
   TargetIcon,
   UserRoundIcon,
   type LucideIcon,
@@ -76,6 +78,33 @@ function StatusBadge({
   );
 }
 
+/**
+ * Tab switches are reported for every row, not only the flagged ones: a plain
+ * "None" is what makes a "3 switches" next to it mean something. The count is
+ * a monitoring signal, never a verdict, so it never colours the row itself.
+ */
+function TabWarningCell({ count }: { count: number }) {
+  if (count === 0) {
+    return (
+      <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+        <ShieldCheckIcon aria-hidden="true" className="size-3.5" />
+        None
+      </span>
+    );
+  }
+
+  return (
+    <span
+      className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium tabular-nums"
+      style={{ backgroundColor: TINT.amber.bg, color: TINT.amber.fg }}
+      title={`${count} tab ${count === 1 ? "switch was" : "switches were"} recorded during this attempt`}
+    >
+      <MonitorXIcon aria-hidden="true" className="size-3.5" />
+      {count} {count === 1 ? "switch" : "switches"}
+    </span>
+  );
+}
+
 export function TrainerTable({ trainers }: { trainers: TrainerRow[] }) {
   if (trainers.length === 0) {
     return (
@@ -87,7 +116,7 @@ export function TrainerTable({ trainers }: { trainers: TrainerRow[] }) {
 
   return (
     <div className="min-w-0 overflow-x-auto rounded-xl border border-border/60">
-      <table className="w-full min-w-[940px] border-collapse text-left text-sm">
+      <table className="w-full min-w-[1060px] border-collapse text-left text-sm">
         <thead>
           <tr className="border-b border-border/60 bg-muted/40">
             <HeadCell
@@ -99,6 +128,7 @@ export function TrainerTable({ trainers }: { trainers: TrainerRow[] }) {
             <HeadCell icon={MapPinIcon} label="State" />
             <HeadCell icon={Building2Icon} label="Skill centre" />
             <HeadCell icon={TargetIcon} label="Score" />
+            <HeadCell icon={MonitorXIcon} label="Tab switches" />
             <HeadCell icon={CircleCheckIcon} label="Status" />
             <HeadCell icon={EyeIcon} label="Action" className="px-5" />
           </tr>
@@ -140,6 +170,9 @@ export function TrainerTable({ trainers }: { trainers: TrainerRow[] }) {
                 ) : (
                   <span className="text-muted-foreground">—</span>
                 )}
+              </td>
+              <td className="px-3 py-4 text-center">
+                <TabWarningCell count={trainer.tabWarningCount} />
               </td>
               <td className="px-3 py-4 text-center">
                 <StatusBadge

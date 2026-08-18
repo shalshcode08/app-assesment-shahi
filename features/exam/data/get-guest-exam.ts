@@ -19,6 +19,8 @@ const guestAttemptSchema = z.object({
   }),
   durationSeconds: z.number().int().positive(),
   expiresAt: z.string().nullable(),
+  instructions: z.string().nullable().default(null),
+  maxTabSwitches: z.number().int().nonnegative().nullable().default(null),
   questions: z.array(
     z.object({
       answerRevision: z.number().int().nonnegative(),
@@ -102,6 +104,8 @@ export async function getGuestExam(): Promise<GuestExamSession | null> {
     durationSeconds: parsedAttempt.data.durationSeconds,
     expiresAt: parsedAttempt.data.expiresAt,
     flaggedQuestionIds,
+    instructions: parsedAttempt.data.instructions,
+    maxTabSwitches: parsedAttempt.data.maxTabSwitches,
     questions: parsedAttempt.data.questions.map((question) => ({
       id: question.id,
       options: question.options,
