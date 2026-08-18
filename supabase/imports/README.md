@@ -12,6 +12,7 @@ places to edit the same function.
 | `create-admin.sql` | Creates or resets an administrator. Edit the address and password first |
 | `reset-data.sql` | Empties every table of data, keeping the schema and the administrators. Destructive |
 | `admin-setup.sql` | Admin auth objects, kept for a database that predates the migrations |
+| `operations.sql` | Day-to-day queries the interface does not cover: readiness checks, stale attempts, bank health, admin recovery. Copy one block at a time |
 
 There is no seed file and no bundled question bank: states, centres, tests, and
 questions are all created through **Settings** in the admin interface.

@@ -111,6 +111,15 @@ rules for translated sheets are documented in
 uploaded through **Settings → Tests → Questions**, which previews what an import
 would create before writing anything.
 
+## Running it day to day
+
+[`supabase/imports/operations.sql`](supabase/imports/operations.sql) holds the
+queries the interface does not cover — a pre-sitting readiness check, stale
+attempts and how to close them, question bank and translation gaps, integrity
+review, administrator recovery, and growth. Copy one block at a time; anything
+that writes is wrapped in a transaction that rolls back until you change the
+last line to `commit`.
+
 ## Technical decisions
 
 [`DECISIONS.md`](DECISIONS.md) records the decisions behind the data model, the
