@@ -57,12 +57,12 @@ export function AdminLoginForm({
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card className="py-7">
         <CardHeader className="text-center">
-          <div className="relative mx-auto mb-3 h-12 w-36 overflow-hidden">
+          <div className="relative mx-auto mb-4 h-12 w-36 overflow-hidden">
             <Image
               src="/assets/logo.png"
               alt="Shahi"
-              width={80}
-              height={60}
+              width={100}
+              height={80}
               className="absolute left-1/2 top-1/2 max-w-none -translate-x-1/2 -translate-y-1/2"
             />
           </div>

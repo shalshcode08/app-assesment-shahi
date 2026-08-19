@@ -31,7 +31,10 @@ const NAV_ITEMS = [
 ] as const;
 
 function initialsOf(value: string) {
-  const parts = value.trim().split(/[\s@.]+/).filter(Boolean);
+  const parts = value
+    .trim()
+    .split(/[\s@.]+/)
+    .filter(Boolean);
 
   return (parts[0]?.[0] ?? "A").concat(parts[1]?.[0] ?? "").toUpperCase();
 }
@@ -53,8 +56,8 @@ function SidebarContent({
         <Image
           src="/assets/logo.png"
           alt="Shahi"
-          width={68}
-          height={42}
+          width={88}
+          height={62}
           className="h-auto w-14 object-contain"
           priority
         />
@@ -174,8 +177,8 @@ export function AdminShell({
           <Image
             src="/assets/logo.png"
             alt="Shahi"
-            width={68}
-            height={42}
+            width={88}
+            height={62}
             className="h-auto w-12 object-contain"
           />
           <span className="text-sm font-semibold text-foreground/85">
